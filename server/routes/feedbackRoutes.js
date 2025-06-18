@@ -1,21 +1,24 @@
+// routes/feedbackRoutes.js
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
 const feedbackController = require('../controllers/feedbackController');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) =>
-    cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '')}`),
-});
+// Destructure and make sure both upload and submitFeedback are correctly imported
+const { upload, submitFeedback } = feedbackController;
 
-const upload = multer({ storage });
+// POST route for submitting feedback, with multer image upload
+router.post('/', upload.single('image'), submitFeedback);
 
-router.post('/', upload.single('image'), feedbackController.submitFeedback);
+// GET route to get all feedback
 router.get('/', feedbackController.getAllFeedback);
+
+// GET route to get feedback by ID
 router.get('/:id', feedbackController.getFeedbackById);
+
+// DELETE route to delete all feedback
 router.delete('/', feedbackController.deleteAllFeedback);
+
+// DELETE route to delete feedback by ID
 router.delete('/:id', feedbackController.deleteFeedbackById);
 
 module.exports = router;

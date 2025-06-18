@@ -1,18 +1,14 @@
-const mongoose = require('mongoose');
+// models/Feedback.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const departmentRatingSchema = new mongoose.Schema({
-  department: String,
-  rating: Number,
-});
+const Feedback = sequelize.define('Feedback', {
+  name: { type: DataTypes.STRING, allowNull: false },
+  phone: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.STRING, allowNull: false, maxlength: 300 },
+  imageUrl: { type: DataTypes.STRING },
+  overallRating: { type: DataTypes.INTEGER, allowNull: false },
+  departmentRatings: { type: DataTypes.JSONB },
+}, {});
 
-const feedbackSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  description: { type: String, required: true, maxlength: 300 },
-  imageUrl: { type: String },
-  overallRating: { type: Number, required: true },
-  departmentRatings: [departmentRatingSchema],
-  createdAt: { type: Date, default: Date.now },
-});
-
-module.exports = mongoose.model('Feedback', feedbackSchema);
+module.exports = Feedback;
