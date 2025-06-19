@@ -65,14 +65,31 @@ const FeedbackPage = () => {
   const fetchFeedbacks = async () => {
     setLoading(true);
     setError(null);
-    
+  
     try {
-      const response = await fetch(`${API_URL}/feedback`);
-      
+      // Retrieve the JWT token from sessionStorage
+      const token = localStorage.getItem('adminToken');
+  
+      // If there's no token, you might want to handle the error (e.g., redirect to login)
+      if (!token) {
+        setError('You need to log in first');
+        setLoading(false);
+        return;
+      }
+  
+      // Set the Authorization header with the Bearer token
+      const response = await fetch(`${API_URL}/feedback`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Add the JWT token here
+        },
+      });
+  
       if (!response.ok) {
         throw new Error(`Failed to fetch feedback: ${response.status}`);
       }
-      
+  
       const data = await response.json();
       setFeedbacks(data);
     } catch (err) {
@@ -84,11 +101,88 @@ const FeedbackPage = () => {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     // Fetch feedback when component mounts or language changes
     fetchFeedbacks();
   }, [t, currentLanguage]); // Re-run when language changes
+
+  // Function to export feedback data to CSV format for Excel download
+  const exportToCSV = () => {
+    // Get filtered feedbacks based on current date filter
+    const dataToExport = filteredFeedbacks;
+    
+    // Check if there's data to export
+    if (!dataToExport || dataToExport.length === 0) {
+      alert(t('noDataToExport', 'No feedback data available to export'));
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      t('name'),
+      t('phone'),
+      t('description'),
+      t('overallRating'),
+      t('departmentRatings'),
+      t('createdAt'),
+      t('imageURL')
+    ];
+
+    // Create CSV content with UTF-8 BOM for proper character encoding in Excel
+    let csvContent = '\uFEFF'; // Add UTF-8 BOM
+    csvContent += headers.join(',') + '\n';
+
+    // Add data rows
+    dataToExport.forEach(feedback => {
+      const departmentRatingsStr = feedback.departmentRatings ? 
+        JSON.stringify(feedback.departmentRatings).replace(/,/g, ';') : ''; // Replace commas with semicolons
+      
+      // Format date in universal format (YYYY-MM-DD HH:MM) for Excel compatibility
+      const formatUniversalDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.getFullYear() + '-' + 
+               String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+               String(date.getDate()).padStart(2, '0') + ' ' + 
+               String(date.getHours()).padStart(2, '0') + ':' + 
+               String(date.getMinutes()).padStart(2, '0');
+      };
+
+      // Check for different possible image field names
+      const imageField = feedback.imageUrl || feedback.imageURL || feedback.image || '';
+
+      // Format and clean data for CSV
+      const row = [
+        (feedback.name || '').replace(/,/g, ' '), // Remove commas from strings
+        (feedback.phone || '').replace(/,/g, ' '),
+        (feedback.comments || feedback.description || feedback.message || '').replace(/,/g, ' ').replace(/\n/g, ' '),
+        feedback.overallRating || '',
+        departmentRatingsStr,
+        formatUniversalDate(feedback.createdAt),
+        imageField.replace(/,/g, ' ')
+      ];
+
+      csvContent += row.join(',') + '\n';
+    });
+
+    // Create a Blob with the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a link element to trigger the download
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // Set attributes for the download link
+    link.setAttribute('href', url);
+    link.setAttribute('download', `feedback_data_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.display = 'none';
+    
+    // Add to document, trigger click, and clean up
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -217,18 +311,27 @@ const FeedbackPage = () => {
     <div className="feedback-page">
       <div className="feedback-header">
         <h1>{t('receivedFeedback')}</h1>
-        <div className="filter-container">
-          <label htmlFor="date-filter">{t('filterByDate', 'Filter by date:')}</label>
-          <select 
-            id="date-filter"
-            className="date-filter-dropdown"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+        <div className="feedback-controls">
+          <div className="filter-container">
+            <label htmlFor="date-filter">{t('filterByDate', 'Filter by date:')}</label>
+            <select 
+              id="date-filter"
+              className="date-filter-dropdown"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            >
+              <option value="all">{t('allTime', 'All Time')}</option>
+              <option value="today">{t('today', 'Today')}</option>
+              <option value="month">{t('month', 'This Month')}</option>
+            </select>
+          </div>
+          <button 
+            className="export-button" 
+            onClick={exportToCSV}
+            disabled={!feedbacks || feedbacks.length === 0}
           >
-            <option value="all">{t('allTime', 'All Time')}</option>
-            <option value="today">{t('today', 'Today')}</option>
-            <option value="month">{t('month', 'This Month')}</option>
-          </select>
+            {t('exportToExcel', 'Export to Excel')}
+          </button>
         </div>
       </div>
 

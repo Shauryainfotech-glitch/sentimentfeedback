@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../../styles/Dashboard.css";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -11,6 +11,8 @@ const DashboardLayout = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState('');
 
   // Language is now handled by i18n.js with localStorage persistence
 
@@ -32,10 +34,57 @@ const DashboardLayout = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+  
+  // Extract email from JWT token
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      try {
+        // Parse the JWT token without verification (frontend only)
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+        if (payload.email) {
+          setUserEmail(payload.email);
+        }
+      } catch (error) {
+        console.error('Error parsing token:', error);
+      }
+    }
+  }, []);
 
   // Toggle sidebar
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+  
+  // Logout function
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('adminToken');
+    
+    try {
+      // Call logout API
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Remove token from localStorage
+      localStorage.removeItem('adminToken');
+      
+      // Redirect to login page
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if the API call fails, remove the token and redirect
+      localStorage.removeItem('adminToken');
+      navigate('/admin/login');
+    }
   };
 
   // Language change functionality now handled by LanguageSwitcher component
@@ -62,28 +111,47 @@ const DashboardLayout = () => {
         <div className="sidebar-content">
           <ul>
             <li className={location.pathname === "/admin/dashboard/feedback" ? "active" : ""}>
-              <Link to="/admin/dashboard/feedback" onClick={isMobile ? toggleSidebar : undefined}>
+              <Link 
+                to="/admin/dashboard/feedback" 
+                onClick={isMobile ? toggleSidebar : undefined}
+                title={!isOpen ? t('receivedFeedback') : ""}  // Show title attribute only when sidebar is collapsed
+              >
                 <span className="icon">💬</span>
                 <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('receivedFeedback')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/analytics" ? "active" : ""}>
-              <Link to="/admin/dashboard/analytics" onClick={isMobile ? toggleSidebar : undefined}>
+              <Link 
+                to="/admin/dashboard/analytics" 
+                onClick={isMobile ? toggleSidebar : undefined}
+                title={!isOpen ? t('analytics') : ""}
+              >
                 <span className="icon">📊</span>
                 <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('analytics')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/sentiment" ? "active" : ""}>
-              <Link to="/admin/dashboard/sentiment" onClick={isMobile ? toggleSidebar : undefined}>
+              <Link 
+                to="/admin/dashboard/sentiment" 
+                onClick={isMobile ? toggleSidebar : undefined}
+                title={!isOpen ? t('sentimentAnalysis') : ""}
+              >
                 <span className="icon">📈</span>
                 <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('sentimentAnalysis')}</span>
               </Link>
             </li>
             <li className="logout">
-              <Link to="/admin/login" onClick={isMobile ? toggleSidebar : undefined}>
+              <a 
+                href="#" 
+                onClick={(e) => { 
+                  if (isMobile) toggleSidebar();
+                  handleLogout(e);
+                }}
+                title={!isOpen ? t('logout') : ""}
+              >
                 <span className="icon">🚪</span>
                 <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('logout')}</span>
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
@@ -106,7 +174,7 @@ const DashboardLayout = () => {
               <LanguageSwitcher />
             </div>
             <div className="user-info">
-              {t('welcome')}
+              {userEmail ? `${t('welcome')} ${userEmail}` : t('welcome')}
             </div>
           </div>
         </div>

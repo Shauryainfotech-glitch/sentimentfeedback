@@ -54,6 +54,7 @@ const AdminLogin = () => {
       
       // Store the token from the backend
       localStorage.setItem('adminToken', data.token);
+      // Don't store email in localStorage as requested
       navigate('/admin/dashboard/feedback');
     } catch (err) {
       setError(err.message || 'An error occurred. Please try again.');

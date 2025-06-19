@@ -29,6 +29,38 @@
   color: #444;
 }
 
+/* Controls container for filters and export button */
+.feedback-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Export button styling */
+.export-button {
+  background-color: #0A2362;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.export-button:hover {
+  background-color: #081d50;
+}
+
+.export-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 .date-filter-dropdown {
   padding: 8px 12px;
   border: 1px solid #ddd;
