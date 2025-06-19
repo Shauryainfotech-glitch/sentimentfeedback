@@ -69,3 +69,20 @@ label {
   border: 1px solid #dee2e6;
   margin-bottom: 5px;
 }
+
+/* Custom blue color classes */
+.text-custom-blue {
+  color: #0A2362 !important;
+}
+
+.btn-outline-custom-blue {
+  color: #0A2362;
+  border-color: #0A2362;
+  border-width: 2px;
+  border-radius: 10px;
+}
+
+.btn-outline-custom-blue:hover {
+  background-color: #0A2362;
+  color: white;
+}

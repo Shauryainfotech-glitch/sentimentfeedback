@@ -13,15 +13,19 @@ const HomePage = () => {
   return (
     <div className="container py-5">
       <div className="text-center">
-        <h1 className="fw-bold text-primary mb-4">Ahilyanagar Police Feedback</h1>
+        <h1 className="fw-bold  mb-4" style={{ color: "#0A2362" }}>Ahilyanagar Police Feedback</h1>
         <p className="lead text-secondary">We value your opinion! Help us improve policing by submitting your feedback.</p>
 
         <button
-          className="btn btn-outline-primary mt-4 px-4 py-2 fw-semibold"
-          onClick={() => navigate('/feedback')}
-        >
-          Give Feedback
-        </button>
+  className="btn mt-4 px-4 py-2 fw-semibold"
+  onClick={() => navigate('/feedback')}
+  style={{
+    color: "#0A2362",        // Text color
+    borderColor: "#0A2362",  // Border color
+  }}
+>
+  Give Feedback
+</button>
 
         <div className="mt-5">
           <p className="text-muted">Or scan this QR Code:</p>

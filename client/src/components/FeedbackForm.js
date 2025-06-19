@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import '../css/feedback.css';
 
@@ -9,7 +9,7 @@ const translations = {
     phone: "Phone Number",
     description: "Description",
     image: "Upload Image (Optional)",
-    overallRating: "Overall Rating (1-10) *",
+    overallRating: "Overall Rating (1-10)",
     departmentRating: "Add Department-wise Rating (Optional)",
     submit: "Submit",
     namePlaceholder: "Your Name",
@@ -35,7 +35,7 @@ const translations = {
     phone: "फोन नंबर",
     description: "माहिती",
     image: "छायाचित्र अपलोड करा ( पर्यायी )",
-    overallRating: "एकूण रेटिंग (1-10) *",
+    overallRating: "एकूण रेटिंग (1-10)",
     departmentRating: "विभागानुसार रेटिंग (पर्यायी)",
     submit: "पाठवा",
     namePlaceholder: "तुमचं नाव",
@@ -70,6 +70,34 @@ const FeedbackForm = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [departmentRating, setDepartmentRating] = useState(5);
   const fileInputRef = useRef();
+  const overallRangeRef = useRef();
+  const departmentRangeRef = useRef();
+  
+  // Get refs for the progress bars
+  const overallProgressRef = useRef();
+  const departmentProgressRef = useRef();
+  
+  // Update progress bar widths
+  useEffect(() => {
+    updateProgressBar(overallProgressRef.current, formData.overallRating, 10);
+  }, [formData.overallRating]);
+  
+  useEffect(() => {
+    if (departmentProgressRef.current) {
+      updateProgressBar(departmentProgressRef.current, departmentRating, 10);
+    }
+  }, [departmentRating]);
+  
+  const updateProgressBar = (progressBar, value, max) => {
+    if (progressBar) {
+      // Calculate width percentage based on current value
+      // For a range slider from 1-10, the actual range we want is 0-100%
+      // The formula below ensures perfect alignment with the thumb position
+      const min = 1; // Minimum value of the range
+      const percent = ((parseFloat(value) - min) / (max - min)) * 100;
+      progressBar.style.width = `${percent}%`;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -110,22 +138,22 @@ const FeedbackForm = () => {
     </select>
   </div>
 
-  <h3 className="text-center feedback-title mb-4">{t.title}</h3>
+  <h3 className="text-center feedback-title mb-4" style={{color: "#0A2362"}}>{t.title}</h3>
 
   <form onSubmit={handleSubmit} encType="multipart/form-data" className="card p-4 feedback-card">
     <div className="row mb-4">
       <div className="col-md-6">
-        <label className="form-label">{t.fullName} *</label>
+        <label className="form-label required">{t.fullName}</label>
         <input type="text" name="name" value={formData.name} onChange={handleChange} required className="form-control" placeholder={t.namePlaceholder} />
       </div>
       <div className="col-md-6">
-        <label className="form-label">{t.phone} *</label>
+        <label className="form-label required">{t.phone}</label>
         <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required className="form-control" placeholder={t.phonePlaceholder} maxLength={10} />
       </div>
     </div>
 
     <div className="mb-4">
-      <label className="form-label">{t.description} *</label>
+      <label className="form-label required">{t.description}</label>
       <div className="form-text mb-2">{t.descriptionNote}</div>
       <textarea name="description" value={formData.description} onChange={handleChange} required className="form-control" placeholder={t.descriptionPlaceholder} rows="4"></textarea>
     </div>
@@ -136,13 +164,27 @@ const FeedbackForm = () => {
     </div>
 
     <div className="mb-4">
-      <label className="form-label range-label">{t.overallRating}</label>
-      <input type="range" min="1" max="10" name="overallRating" value={formData.overallRating} onChange={handleChange} className="form-range" />
+      <label className="form-label range-label required">{t.overallRating}</label>
+      <div className="custom-range-container">
+        <div className="range-track-background"></div>
+        <div className="range-progress-bar" ref={overallProgressRef}></div>
+        <input 
+          type="range" 
+          min="1" 
+          max="10" 
+          name="overallRating" 
+          value={formData.overallRating} 
+          onChange={handleChange} 
+          className="form-range" 
+          ref={overallRangeRef}
+          style={{width: '100%'}} 
+        />
+      </div>
       <div className="range-value">{formData.overallRating} / 10</div>
     </div>
 
     <div className="mb-4 border rounded p-3 bg-light">
-      <label className="form-label fw-bold mb-2">{t.departmentRating}</label>
+      <label className="form-label mb-2">{t.departmentRating}</label>
       <div className="row g-2 align-items-center">
         <div className="col-md-5">
           <select className="form-select" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
@@ -153,7 +195,20 @@ const FeedbackForm = () => {
           </select>
         </div>
         <div className="col-md-4">
-          <input type="range" min="1" max="10" value={departmentRating} onChange={(e) => setDepartmentRating(e.target.value)} className="form-range" />
+          <div className="custom-range-container">
+            <div className="range-track-background"></div>
+            <div className="range-progress-bar" ref={departmentProgressRef}></div>
+            <input 
+              type="range" 
+              min="1" 
+              max="10" 
+              value={departmentRating} 
+              onChange={(e) => setDepartmentRating(e.target.value)} 
+              className="form-range" 
+              ref={departmentRangeRef}
+              style={{width: '100%'}}
+            />
+          </div>
           <div className="range-value">{departmentRating} / 10</div>
         </div>
         <div className="col-md-3">

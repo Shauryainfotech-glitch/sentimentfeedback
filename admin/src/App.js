@@ -8,6 +8,7 @@ import AnalyticsPage from './components/Dashboard/AnalyticsPage';
 import SentimentPage from './components/Dashboard/SentimentPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LanguageProvider } from './context/LanguageContext';
+import ForgotPassword from './components/ForgotPassword';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <div className="App">
           <Routes>
           <Route path="/" element={<Navigate to="/admin/login" />} />
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
           
           <Route path="/admin/login" element={
             <>
