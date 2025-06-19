@@ -1,0 +1,71 @@
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+form.card {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 16px;
+}
+
+label {
+  color: #212529;
+  font-weight: 500;
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+  box-shadow: none !important;
+  border-color: #ced4da;
+}
+
+.form-range::-webkit-slider-thumb {
+  background: #0A2362;
+}
+
+.form-range::-moz-range-thumb {
+  background: #0A2362;
+
+}
+
+.btn-success {
+  background-color: #0A2362;
+  border: none;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.btn-success:hover {
+  background-color: #0A2362;
+}
+
+.btn-primary {
+  background: #0A2362;
+  border: none;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.btn-primary:hover {
+  background-color: #0A2362;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.btn-danger:hover {
+  background-color: #bb2d3b;
+}
+
+.list-group-item {
+  background-color: #f8f9fa;
+  border-radius: 10px !important;
+  border: 1px solid #dee2e6;
+  margin-bottom: 5px;
+}

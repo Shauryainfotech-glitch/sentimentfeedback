@@ -1,0 +1,206 @@
+.admin-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px); /* Adjust for navbar height */
+  background-color: #f7f9fc;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.admin-login-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 35px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* Login header styles */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  color: #0A2362;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.login-subtext {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Form styles */
+.login-form {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* Input wrapper for icons */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: #888;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 15px 14px 42px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background-color: #fcfcfc;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #0A2362;
+  box-shadow: 0 0 0 3px rgba(10, 35, 98, 0.1);
+  background-color: #fff;
+}
+
+/* Error states */
+.has-error input {
+  border-color: #e53935;
+  background-color: #fff8f8;
+}
+
+.input-error {
+  border-color: #e53935 !important;
+}
+
+.validation-message {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.password-toggle:focus {
+  outline: none;
+}
+
+/* Login button */
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #0A2362;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn:hover {
+  background-color: #081d50;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 35, 98, 0.15);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.login-btn:disabled {
+  background-color: #7085b1;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Error message */
+.error-message {
+  padding: 14px;
+  margin-bottom: 20px;
+  background-color: #ffebee;
+  color: #c62828;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  border-left: 4px solid #c62828;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .admin-login-box {
+    padding: 25px 20px;
+    border-radius: 8px;
+  }
+  
+  .login-header h1 {
+    font-size: 24px;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
+  }
+  
+  .form-group input {
+    padding: 12px 12px 12px 38px;
+  }
+  
+  .login-btn {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .admin-login-container {
+    padding: 15px;
+  }
+  
+  .admin-login-box {
+    padding: 20px 15px;
+  }
+  
+  .input-icon {
+    left: 10px;
+  }
+}
