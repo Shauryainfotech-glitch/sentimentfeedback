@@ -1,4 +1,3 @@
-// server.js
 const dotenv = require('dotenv');
 dotenv.config();  // Load environment variables FIRST
 
@@ -12,7 +11,13 @@ const sequelize = require('./config/database');
 const app = express();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: '*',  // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow these headers
+};
+
+app.use(cors(corsOptions)); // Use the CORS middleware with options
 app.use(express.json()); // Parse JSON bodies
 app.use('/uploads', express.static('uploads')); // Serve static files (images, etc.)
 

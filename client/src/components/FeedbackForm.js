@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import '../css/feedback.css';
+import '../css/all.css';
+
 
 const translations = {
   en: {
