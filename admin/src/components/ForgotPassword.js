@@ -123,8 +123,8 @@ const ForgotPassword = ({ onBackToLogin }) => {
         },
         body: JSON.stringify({ 
           email, 
-          otp, 
-          newPassword 
+          newPassword, // Send newPassword
+          confirmPassword // Send confirmPassword
         }),
       });
 
