@@ -167,4 +167,16 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, forgotPassword, verifyOtp, resetPassword };
+// Logout function (optional - for token invalidation)
+const logout = async (req, res) => {
+  try {
+    // In a more advanced implementation, you could add the token to a blacklist
+    // For now, we'll just return success since JWT tokens are stateless
+    res.json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, forgotPassword, verifyOtp, resetPassword, logout };
