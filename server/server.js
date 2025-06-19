@@ -1,13 +1,13 @@
 // server.js
+const dotenv = require('dotenv');
+dotenv.config();  // Load environment variables FIRST
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const sequelize = require('./config/database');
-
-dotenv.config();  // Load environment variables
 
 const app = express();
 
@@ -28,4 +28,6 @@ sequelize.sync().then(() => {
   });
 }).catch((err) => {
   console.error('Error connecting to the database', err);
+  console.error('Department rating analysis error:', err, err.stack);
+  res.status(500).json({ error: 'Server error: ' + err.message });
 });

@@ -14,4 +14,7 @@ router.post('/verify-otp', authController.verifyOtp);
 // Reset password route
 router.post('/reset-password', authController.resetPassword);
 
+// Register route
+router.post('/register', authController.register);
+
 module.exports = router;

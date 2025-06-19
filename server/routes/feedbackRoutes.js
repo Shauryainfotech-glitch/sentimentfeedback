@@ -21,4 +21,10 @@ router.delete('/', feedbackController.deleteAllFeedback);
 // DELETE route to delete feedback by ID
 router.delete('/:id', feedbackController.deleteFeedbackById);
 
+// GET route for overall rating analysis
+router.get('/overall-rating-analysis', feedbackController.getOverallRatingAnalysis);
+
+// GET route for department-wise rating analysis
+router.get('/department-rating-analysis', feedbackController.getDepartmentRatingAnalysis);
+
 module.exports = router;
