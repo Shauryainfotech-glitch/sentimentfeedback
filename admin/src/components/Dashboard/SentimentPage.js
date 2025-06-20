@@ -219,21 +219,22 @@ const SentimentPage = () => {
     // Determine if we're on a small screen using window width
     // Use a more responsive approach
     const isMobile = window.innerWidth < 576;
+    const isTablet = window.innerWidth < 992 && window.innerWidth >= 576;
 
     return (
       <div className="dashboard-card sentiment-distribution">
         <h3>{t('overallSentimentDistribution')}</h3>
 
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
-            <PieChart margin={isMobile ? { top: 5, right: 5, bottom: 5, left: 5 } : { top: 5, right: 30, bottom: 5, left: 30 }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 280 : 320}>
+            <PieChart margin={isMobile ? { top: 10, right: 10, bottom: 30, left: 10 } : { top: 10, right: 30, bottom: 30, left: 30 }}>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                labelLine={isMobile ? false : true}
-                label={!isMobile}
-                outerRadius={isMobile ? 70 : 90}
+                labelLine={false}
+                label={false}
+                outerRadius={isMobile ? 65 : isTablet ? 80 : 90}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -242,11 +243,11 @@ const SentimentPage = () => {
                 ))}
               </Pie>
               <Legend 
-                verticalAlign={isMobile ? "middle" : "bottom"}
-                align={isMobile ? "right" : "center"}
-                layout={isMobile ? "vertical" : "horizontal"}
+                verticalAlign="bottom"
+                align="center"
+                layout="horizontal"
                 iconSize={isMobile ? 8 : 10}
-                wrapperStyle={isMobile ? { right: 10 } : null}
+                wrapperStyle={{ paddingTop: isMobile ? '15px' : '5px' }}
               />
               <Tooltip formatter={(value) => `${value}%`} />
             </PieChart>
@@ -280,13 +281,13 @@ const SentimentPage = () => {
     return (
       <div className="dashboard-card category-sentiment">
         <h3>{t('sentimentAnalysisByCategory')}</h3>
-        <div className="chart-container">
-          <ResponsiveContainer width="100%" height={isMobile ? 300 : 400}>
+        <div className="chart-container" style={{ marginTop: isMobile ? '20px' : '10px', paddingTop: isMobile ? '20px' : '0' }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 350 : 400}>
             <BarChart
               data={sentiment?.sentimentByCategory}
-              margin={isMobile ? { top: 20, right: 10, left: 0, bottom: 60 } : 
-                     isTablet ? { top: 20, right: 20, left: 10, bottom: 60 } : 
-                              { top: 20, right: 30, left: 20, bottom: 5 }}
+              margin={isMobile ? { top: 10, right: 0, left: -15, bottom: 70 } : 
+                     isTablet ? { top: 20, right: 20, left: 0, bottom: 60 } : 
+                              { top: 20, right: 30, left: 20, bottom: 20 }}
               barGap={0}
               barCategoryGap={isMobile ? 8 : 20}
               layout={isMobile ? "vertical" : "horizontal"}
@@ -369,7 +370,7 @@ const SentimentPage = () => {
                 <div className="sentiment-card">
                   {renderSentimentDistribution()}
                 </div>
-                <div className="sentiment-card">
+                <div className="sentiment-card" style={{ marginTop: window.innerWidth < 576 ? '50px' : '20px' }}>
                   {renderCategorySentiment()}
                 </div>
               </div>
