@@ -112,72 +112,6 @@ const deleteFeedbackById = async (req, res) => {
   }
 };
 
-// API to get overall rating analysis
-const getOverallRatingAnalysis = async (req, res) => {
-  try {
-    console.log('--- getOverallRatingAnalysis called ---');
-    const feedbacks = await Feedback.findAll();
-    console.log('Feedbacks:', feedbacks);
-    // Count feedbacks for each overallRating (1-5)
-    const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    feedbacks.forEach(fb => {
-      const rating = Number(fb.overallRating);
-      if (ratingCounts[rating] !== undefined) {
-        ratingCounts[rating]++;
-      }
-    });
-    res.json(ratingCounts);
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
-
-// API to get department-wise rating analysis (average rating per department)
-const getDepartmentRatingAnalysis = async (req, res) => {
-  try {
-    console.log('--- getDepartmentRatingAnalysis called ---');
-    const feedbacks = await Feedback.findAll();
-    console.log('Feedbacks:', feedbacks);
-    const departmentStats = {};
-    feedbacks.forEach(fb => {
-      let deptRatings = fb.departmentRatings;
-      console.log('Raw departmentRatings:', deptRatings);
-      if (!deptRatings) return;
-      if (typeof deptRatings === 'string') {
-        try { deptRatings = JSON.parse(deptRatings); } catch (e) { 
-          console.error('JSON parse error:', e, 'Value:', deptRatings);
-          return; 
-        }
-      }
-      if (!Array.isArray(deptRatings)) {
-        console.error('Not an array:', deptRatings);
-        return;
-      }
-      deptRatings.forEach(dept => {
-        if (!dept || !dept.department || isNaN(Number(dept.rating))) {
-          console.error('Invalid dept entry:', dept);
-          return;
-        }
-        if (!departmentStats[dept.department]) {
-          departmentStats[dept.department] = { total: 0, count: 0 };
-        }
-        departmentStats[dept.department].total += Number(dept.rating);
-        departmentStats[dept.department].count++;
-      });
-    });
-    // Calculate average for each department
-    const result = {};
-    for (const dept in departmentStats) {
-      result[dept] = (departmentStats[dept].total / departmentStats[dept].count).toFixed(2);
-    }
-    res.json(result);
-  } catch (error) {
-    console.error('Department rating analysis error:', error, error.stack);
-    res.status(500).json({ error: 'Server  awsjj error: ' + error.message });
-  }
-};
-
 // Export all controller functions
 module.exports = {
   upload,
@@ -185,7 +119,5 @@ module.exports = {
   getAllFeedback,
   getFeedbackById,
   deleteAllFeedback,
-  deleteFeedbackById,
-  getOverallRatingAnalysis,
-  getDepartmentRatingAnalysis
+  deleteFeedbackById
 };
