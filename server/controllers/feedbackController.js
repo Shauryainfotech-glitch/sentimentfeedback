@@ -32,7 +32,7 @@ const storage = multerS3({
 const upload = multer({ 
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     // Accept only image files
@@ -62,7 +62,7 @@ const submitFeedback = async (req, res) => {
       imageUrl,
     });
 
-    res.status(201).json({ message: 'Feedback submitted successfully.', feedback });
+    res.status(201).json({ message: 'Feedback submitted successfully.', id: feedback.id });
   } catch (error) {
     console.error('Error saving feedback:', error);
     res.status(500).json({ error: 'Server error: ' + error.message });
