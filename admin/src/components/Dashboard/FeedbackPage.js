@@ -6,50 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faTimes, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 
 // API base URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Placeholder function for fallback mock data if API fails
 const createFallbackFeedbacks = (t) => [
-  {
-    id: 1,
-    name: 'Rajesh Kumar',
-    email: 'rajesh@example.com',
-    subject: t('regardingPolice'),
-    message: t('policeAssistanceMsg'),
-    rating: 5,
-    date: '2025-06-17T10:30:00',
-    status: 'new'
-  },
-  {
-    id: 2,
-    name: 'Sunita Patel',
-    email: 'sunita@example.com',
-    subject: t('trafficManagement'),
-    message: t('trafficManagementMsg'),
-    rating: 3,
-    date: '2025-06-16T14:15:00',
-    status: 'read'
-  },
-  {
-    id: 3,
-    name: 'Amit Sharma',
-    email: 'amit@example.com',
-    subject: t('suggestionForSecurity'),
-    message: t('securitySuggestionMsg'),
-    rating: 4,
-    date: '2025-06-16T09:20:00',
-    status: 'read'
-  },
-  {
-    id: 4,
-    name: 'Priya Verma',
-    email: 'priya@example.com',
-    subject: t('appreciationForResponse'),
-    message: t('appreciationMsg'),
-    rating: 5,
-    date: '2025-06-15T18:45:00',
-    status: 'read'
-  }
+ 
 ];
 
 const FeedbackPage = () => {
