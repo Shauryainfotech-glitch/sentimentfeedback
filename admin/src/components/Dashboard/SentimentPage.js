@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import axios from 'axios';
 
 // API URL from environment variable or default to localhost
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL ;
 
 // Month names for displaying all 12 months
 const monthNames = [
@@ -207,27 +207,33 @@ const SentimentPage = () => {
   };
 
   const renderSentimentDistribution = () => {
-    // Define sentiment categories with their name, value and associated color
+    // No sentiment data yet
+    if (!sentiment || !sentiment.sentimentAnalysis) return null;
+    
     const data = [
       { name: t('positive'), value: sentiment?.sentimentAnalysis.positive, color: COLORS.positive },
       { name: t('neutral'), value: sentiment?.sentimentAnalysis.neutral, color: COLORS.neutral },
       { name: t('negative'), value: sentiment?.sentimentAnalysis.negative, color: COLORS.negative }
     ];
+    
+    // Determine if we're on a small screen using window width
+    // Use a more responsive approach
+    const isMobile = window.innerWidth < 576;
 
     return (
       <div className="dashboard-card sentiment-distribution">
         <h3>{t('overallSentimentDistribution')}</h3>
 
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
+            <PieChart margin={isMobile ? { top: 5, right: 5, bottom: 5, left: 5 } : { top: 5, right: 30, bottom: 5, left: 30 }}>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
-                label
-                outerRadius={90}
+                labelLine={isMobile ? false : true}
+                label={!isMobile}
+                outerRadius={isMobile ? 70 : 90}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -235,7 +241,13 @@ const SentimentPage = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Legend verticalAlign="bottom" height={36} />
+              <Legend 
+                verticalAlign={isMobile ? "middle" : "bottom"}
+                align={isMobile ? "right" : "center"}
+                layout={isMobile ? "vertical" : "horizontal"}
+                iconSize={isMobile ? 8 : 10}
+                wrapperStyle={isMobile ? { right: 10 } : null}
+              />
               <Tooltip formatter={(value) => `${value}%`} />
             </PieChart>
           </ResponsiveContainer>
@@ -260,31 +272,82 @@ const SentimentPage = () => {
   };
 
 
-  const renderCategorySentiment = () => (
-    <div className="dashboard-card category-sentiment">
-      <h3>{t('sentimentAnalysisByCategory')}</h3>
-      <div className="chart-container">
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart
-            data={sentiment?.sentimentByCategory}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            barGap={0}
-            barCategoryGap={20}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} height={60} tickMargin={5} interval={0} />
-            <YAxis />
-            <Tooltip formatter={(value) => `${value}%`} />
-            <Legend wrapperStyle={{ paddingTop: '10px' }} />
-            <Bar dataKey="positive" name={t('positive')} fill="#4CAF50" />
-            <Bar dataKey="neutral" name={t('neutral')} fill="#FF9800" />
-            <Bar dataKey="negative" name={t('negative')} fill="#F44336" />
-          </BarChart>
-        </ResponsiveContainer>
+  const renderCategorySentiment = () => {
+    // Determine if we're on a small screen
+    const isMobile = window.innerWidth < 576;
+    const isTablet = window.innerWidth < 768 && window.innerWidth >= 576;
+    
+    return (
+      <div className="dashboard-card category-sentiment">
+        <h3>{t('sentimentAnalysisByCategory')}</h3>
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height={isMobile ? 300 : 400}>
+            <BarChart
+              data={sentiment?.sentimentByCategory}
+              margin={isMobile ? { top: 20, right: 10, left: 0, bottom: 60 } : 
+                     isTablet ? { top: 20, right: 20, left: 10, bottom: 60 } : 
+                              { top: 20, right: 30, left: 20, bottom: 5 }}
+              barGap={0}
+              barCategoryGap={isMobile ? 8 : 20}
+              layout={isMobile ? "vertical" : "horizontal"}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              {!isMobile ? (
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: isMobile ? 10 : 12 }} 
+                  height={60} 
+                  tickMargin={5} 
+                  interval={0} 
+                />
+              ) : (
+                <XAxis 
+                  type="number" 
+                  tick={{ fontSize: 10 }}
+                />
+              )}
+              {!isMobile ? (
+                <YAxis />
+              ) : (
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={80} 
+                  tick={{ fontSize: 10 }}
+                />
+              )}
+              <Tooltip formatter={(value) => `${value}%`} />
+              <Legend 
+                wrapperStyle={{ paddingTop: '10px' }} 
+                iconSize={isMobile ? 8 : 10}
+                layout={isMobile ? "horizontal" : "horizontal"}
+              />
+              <Bar dataKey="positive" name={t('positive')} fill="#4CAF50" />
+              <Bar dataKey="neutral" name={t('neutral')} fill="#FF9800" />
+              <Bar dataKey="negative" name={t('negative')} fill="#F44336" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
+  // Add window resize handler for responsive updates
+  useEffect(() => {
+    const handleResize = () => {
+      // Force a re-render when window size changes
+      setForceUpdate(prev => !prev);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  // State to force re-renders on resize
+  const [forceUpdate, setForceUpdate] = useState(false);
+  
   return (
     <div className="analytics-page">
       <h1>{t('sentimentAnalysis')}</h1>

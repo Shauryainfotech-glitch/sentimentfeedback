@@ -7,10 +7,12 @@
 .chart-container {
   width: 100%;
   height: auto;
+  min-height: 250px;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 10px 0;
+  overflow: visible;
 }
 
 /* Sentiment stats styling */
@@ -289,6 +291,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
+  padding: 0 10px;
 }
 
 .sentiment-distribution {
@@ -488,12 +491,50 @@
   .sentiment-chart {
     flex-direction: column;
   }
+  
+  .recharts-wrapper,
+  .recharts-responsive-container {
+    width: 100% !important;
+  }
 }
 
 @media (max-width: 768px) {
   .tab-button {
     padding: 10px 15px;
     font-size: 14px;
+  }
+  
+  .analytics-page h1 {
+    font-size: 20px;
+    text-align: center;
+  }
+  
+  .dashboard-card {
+    padding: 15px;
+  }
+  
+  .sentiment-stats {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .sentiment-stat-item {
+    width: 80%;
+    justify-content: center;
+  }
+  
+  .charts-container .recharts-wrapper {
+    height: auto !important;
+  }
+  
+  .recharts-legend-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    padding-top: 15px !important;
   }
 }
 
@@ -512,10 +553,45 @@
   }
   
   .chart-container {
-    height: 120px;
+    height: auto;
+    min-height: 200px;
+    padding: 0;
+    overflow: visible;
   }
   
   .chart-bar {
     width: 20px;
+  }
+  
+  .sentiment-dashboard-cards {
+    padding: 0 5px;
+  }
+  
+  .dashboard-card h3 {
+    font-size: 14px;
+  }
+  
+  .recharts-text {
+    font-size: 10px;
+  }
+  
+  .recharts-cartesian-axis-tick-value tspan {
+    font-size: 10px;
+  }
+  
+  .recharts-legend-item-text {
+    font-size: 10px !important;
+  }
+  
+  .recharts-tooltip-wrapper {
+    max-width: 90%;
+  }
+  
+  .sentiment-stats {
+    margin-top: 35px;
+  }
+  
+  .recharts-surface {
+    overflow: visible;
   }
 }

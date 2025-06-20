@@ -5,7 +5,7 @@ import '../../styles/AnalyticsPage.css';
 import { useLanguage } from '../../context/LanguageContext';
 
 // API URL from environment variable or default to localhost
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Function to get color based on rating value (0-10 scale)
 const getRatingColor = (rating) => {
