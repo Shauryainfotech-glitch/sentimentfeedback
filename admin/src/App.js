@@ -6,6 +6,7 @@ import DashboardLayout from './components/Dashboard/DashboardLayout';
 import FeedbackPage from './components/Dashboard/FeedbackPage';
 import AnalyticsPage from './components/Dashboard/AnalyticsPage';
 import SentimentPage from './components/Dashboard/SentimentPage';
+import CorrectiveMeasuresPage from './components/Dashboard/CorrectiveMeasuresPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LanguageProvider } from './context/LanguageContext';
 import ForgotPassword from './components/ForgotPassword';
@@ -38,6 +39,7 @@ function App() {
             <Route path="feedback" element={<FeedbackPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="sentiment" element={<SentimentPage />} />
+            <Route path="corrective-measures" element={<CorrectiveMeasuresPage />} />
           </Route>
 
           {/* Catch all undefined routes and redirect to login */}

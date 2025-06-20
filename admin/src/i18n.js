@@ -12,6 +12,9 @@ const resources = {
       "receivedFeedback": "Received Feedback",
       "analytics": "Analytics",
       "sentimentAnalysis": "Sentiment Analysis",
+      "correctiveMeasures": "Corrective Measures",
+      "overallMeasures": "Overall Measures",
+      "departmentMeasures": "Department Measures",
       "logout": "Logout",
       "welcome": "Welcome, Admin",
       "dashboardTitle": "Ahilyanagar Police Dashboard",
@@ -23,6 +26,97 @@ const resources = {
       "markAsRead": "Mark as Read",
       "loadingFeedback": "Loading feedback...",
       "noFeedbackFound": "No feedback found",
+      "receivedFeedbackTitle": "Received Feedback",
+      "exportToExcel": "Export to Excel",
+      "noFeedback": "No feedback available",
+      "lastRefreshed": "Last refreshed:",
+      "filterByDate": "Filter by date:",
+      "allTime": "All Time",
+      "today": "Today",
+      "month": "This Month",
+      "feedback": "Feedback",
+      "rating": "Rating:",
+      "departmentRatings": "Department Ratings",
+      "viewImage": "View Image",
+      
+      // Corrective Measures
+      "loadingMeasures": "Loading measures...",
+      "addNewMeasure": "Add New Measure",
+      "editMeasure": "Edit Measure",
+      "issue": "Issue",
+      "description": "Description",
+      "correctiveAction": "Corrective Action", 
+      "status": "Status",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "priority": "Priority",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "dueDate": "Due Date",
+      "assignedTo": "Assigned To",
+      "saveMeasure": "Save Measure",
+      "updateMeasure": "Update Measure",
+      "cancel": "Cancel",
+      "currentMeasures": "Current Measures",
+      "noMeasuresFound": "No measures found",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteMeasure": "Are you sure you want to delete this measure?",
+      "selectDepartment": "Select Department",
+      "errorFetchingDepartments": "Error fetching departments",
+      "errorFetchingDepartmentMeasures": "Error fetching department measures",
+      
+      // Department-wise Corrective Measures
+      "correctiveMeasures": "Corrective Measures",
+      "departmentMeasures": "Department-wise Corrective Measures",
+      "overallMeasures": "Overall Corrective Measures",
+      "issue": "Issue",
+      "description": "Description",
+      "correctiveAction": "Corrective Action",
+      "dueDate": "Due Date",
+      "assignedTo": "Assigned To",
+      "priority": "Priority",
+      "status": "Status",
+      "addMeasure": "Add Measure",
+      "editMeasure": "Edit Measure",
+      "deleteMeasure": "Delete Measure",
+      "selectDepartment": "Select Department",
+      "noMeasuresFound": "No corrective measures found",
+      "measureAdded": "Measure added successfully",
+      "measureUpdated": "Measure updated successfully",
+      "measureDeleted": "Measure deleted successfully",
+      "saveMeasure": "Save Measure",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "loadingMeasures": "Loading measures...",
+      "errorFetchingDepartments": "Error fetching departments",
+      "errorFetchingMeasures": "Error fetching measures",
+      "errorFetchingDepartmentMeasures": "Error fetching department measures",
+      
+      // Sentiment Analysis
+      "sentimentAnalysis": "Sentiment Analysis",
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative",
+      "totalFeedback": "Total Feedback",
+      "noFeedback": "No Feedback",
+      "departmentFeedbackSentiment": "Department Feedback Sentiment",
+      "departmentIssueCategories": "Department Issue Categories",
+      "negativePercentage": "Negative Percentage",
+      "monthlySentimentTrend": "Monthly Sentiment Trend",
+      "suggestedCorrectiveMeasures": "Suggested Corrective Measures",
+      "noFeedbackForDepartment": "No feedback available for this department",
+      "feedbackByDepartment": "Feedback by Department",
+      "overallSentiment": "Overall Sentiment",
+      "errorFetchingData": "Error fetching feedback data",
+      "priorityIssues": "Priority Issues",
+      "departmentRatings": "Department Ratings",
       
       // Feedback categories
       "regardingPolice": "Regarding Police Assistance",
@@ -43,6 +137,21 @@ const resources = {
       "averageRating": "Average Rating",
       "monthlyFeedbackTrends": "Monthly Feedback Trends",
       "loadingAnalyticsData": "Loading analytics data...",
+      "count": "count",
+      
+      // Month names
+      "Jan": "Jan",
+      "Feb": "Feb",
+      "Mar": "Mar",
+      "Apr": "Apr",
+      "May": "May",
+      "Jun": "Jun",
+      "Jul": "Jul",
+      "Aug": "Aug",
+      "Sep": "Sep",
+      "Oct": "Oct",
+      "Nov": "Nov",
+      "Dec": "Dec",
       
       // Location names
       "CentralMarket": "Central Market",
@@ -65,39 +174,10 @@ const resources = {
       "overallSentimentDistribution": "Overall Sentiment Distribution",
       "sentimentTrendsOverTime": "Sentiment Trends Over Time",
       "sentimentAnalysisByCategory": "Sentiment Analysis by Category",
-      "loadingSentimentData": "Loading sentiment data..."
-    }
-  },
-  hi: {
-    translation: {
-      // Dashboard layout
-      "adminDashboard": "एडमिन डैशबोर्ड",
-      "receivedFeedback": "प्राप्त प्रतिक्रिया",
-      "analytics": "एनालिटिक्स",
-      "sentimentAnalysis": "भावना विश्लेषण",
-      "logout": "लॉग आउट",
-      "welcome": "स्वागत है, एडमिन",
-      "dashboardTitle": "अहिल्यानगर पुलिस डैशबोर्ड",
-      
-      // Feedback page
-      "allFeedback": "सभी फीडबैक",
-      "new": "नया",
-      "read": "पढ़ा हुआ",
-      "markAsRead": "पढ़ा हुआ मार्क करें",
-      "loadingFeedback": "फीडबैक लोड हो रहा है...",
-      "noFeedbackFound": "कोई फीडबैक नहीं मिला",
-      
-      // Feedback categories
-      "regardingPolice": "पुलिस सहायता के संबंध में",
-      "trafficManagement": "ट्रैफिक प्रबंधन मुद्दा",
-      "suggestionForSecurity": "सुरक्षा के लिए सुझाव",
-      "appreciationForResponse": "त्वरित प्रतिक्रिया के लिए प्रशंसा",
-      
-      // Feedback messages
-      "policeAssistanceMsg": "मैं उस अधिकारी को धन्यवाद देना चाहता हूं जिसने मेरी चोरी हुई बाइक को वापस पाने में मदद की। सेवा त्वरित और पेशेवर थी।",
-      "trafficManagementMsg": "अहिल्यानगर मार्केट के पास ट्रैफिक की स्थिति बदतर होती जा रही है। व्यस्त समय के दौरान बेहतर ट्रैफिक प्रबंधन की आवश्यकता है।",
-      "securitySuggestionMsg": "मैं अपने इलाके में अधिक सीसीटीवी कैमरे लगाने का सुझाव देता हूं। हाल की घटनाओं ने निवासियों को सुरक्षा के बारे में चिंतित कर दिया है।",
-      "appreciationMsg": "मैं अपने आपातकालीन कॉल के लिए त्वरित प्रतिक्रिया के लिए आपकी टीम की सराहना करना चाहता हूं। अधिकारी 10 मिनट के भीतर मेरे स्थान पर थे।"
+      "loadingSentimentData": "Loading sentiment data...",
+
+      // Last refreshed text
+      "lastRefreshed": "Last refreshed"
     }
   },
   mr: {
@@ -107,9 +187,48 @@ const resources = {
       "receivedFeedback": "प्राप्त अभिप्राय",
       "analytics": "विश्लेषणात्मक",
       "sentimentAnalysis": "भावना विश्लेषण",
+      "correctiveMeasures": "सुधारात्मक उपाय",
+      "overallMeasures": "एकूण उपाय",
+      "departmentMeasures": "विभागनिहाय उपाय",
       "logout": "बाहेर पडा",
       "welcome": "स्वागत आहे, प्रशासक",
       "dashboardTitle": "अहिल्यानगर पोलीस डॅशबोर्ड",
+      
+      // Feedback page
+      "receivedFeedbackTitle": "प्राप्त अभिप्राय",
+      "loadingFeedback": "अभिप्राय लोड करत आहे...",
+      "exportToExcel": "एक्सेलमध्ये एक्सपोर्ट करा",
+      "noFeedback": "कोणताही अभिप्राय उपलब्ध नाही",
+      "lastRefreshed": "शेवटचे रिफ्रेश:",
+      
+      // Corrective Measures
+      "loadingMeasures": "उपाय लोड करत आहे...",
+      "addNewMeasure": "नवीन उपाय जोडा",
+      "editMeasure": "उपाय संपादित करा",
+      "issue": "समस्या",
+      "description": "वर्णन",
+      "correctiveAction": "सुधारात्मक कारवाई", 
+      "status": "स्थिती",
+      "pending": "प्रलंबित",
+      "inProgress": "प्रगतीपथावर",
+      "completed": "पूर्ण",
+      "priority": "प्राधान्य",
+      "low": "कमी",
+      "medium": "मध्यम",
+      "high": "उच्च",
+      "dueDate": "नियत तारीख",
+      "assignedTo": "नियुक्त",
+      "saveMeasure": "उपाय जतन करा",
+      "updateMeasure": "उपाय अपडेट करा",
+      "cancel": "रद्द करा",
+      "currentMeasures": "वर्तमान उपाय",
+      "noMeasuresFound": "कोणतेही उपाय आढळले नाहीत",
+      "edit": "संपादित करा",
+      "delete": "हटवा",
+      "confirmDeleteMeasure": "आपण नक्कीच हा उपाय हटवू इच्छिता?",
+      "selectDepartment": "विभाग निवडा",
+      "errorFetchingDepartments": "विभाग आणताना त्रुटी",
+      "errorFetchingDepartmentMeasures": "विभागाचे उपाय आणताना त्रुटी",
       
       // Feedback page
       "allFeedback": "सर्व अभिप्राय",
@@ -126,10 +245,40 @@ const resources = {
       "appreciationForResponse": "जलद प्रतिसादासाठी कौतुक",
       
       // Feedback messages
-      "policeAssistanceMsg": "माझी चोरी झालेली बाईक परत मिळवण्यात मदत केल्याबद्दल मला अधिकाऱ्यांचे आभार मानायचे आहेत. सेवा त्वरित आणि व्यावसायिक होती.",
+      "policeAssistanceMsg": "माझी चोरी झालेली बाईक परत मिळवण्यात मदत केल्याबद्दल मला अधिकार्यांचे आभार मानायचे आहेत. सेवा त्वरित आणि व्यावसायिक होती.",
       "trafficManagementMsg": "अहिल्यानगर मार्केटजवळील वाहतूक परिस्थिती खराब होत आहे. गर्दीच्या वेळी अधिक चांगल्या वाहतूक व्यवस्थापनाची आवश्यकता आहे.",
       "securitySuggestionMsg": "मी आमच्या परिसरात अधिक सीसीटीव्ही कॅमेरे बसवण्याची सूचना करतो. अलीकडील घटनांमुळे रहिवासी सुरक्षेबद्दल चिंतित झाले आहेत.",
-      "appreciationMsg": "माझ्या आपत्कालीन कॉलला जलद प्रतिसाद दिल्याबद्दल मी तुमच्या टीमचे अभिनंदन करू इच्छितो. अधिकारी माझ्या स्थानावर १० मिनिटांच्या आत होते."
+      "appreciationMsg": "माझ्या आपत्कालीन कॉलला जलद प्रतिसाद दिल्याबद्दल मी तुमच्या टीमचे अभिनंदन करू इच्छितो. अधिकारी माझ्या स्थानावर १० मिनिटांच्या आत होते.",
+      "filterByDate": "दिनांकानुसार फिल्टर करा:",
+      "allTime": "सर्व काळ",
+      "today": "आज",
+      "month": "या महिन्यात",
+      "feedback": "अभिप्राय",
+      "rating": "मूल्यांकन:",
+      "departmentRatings": "विभाग मूल्यांकन",
+      "viewImage": "प्रतिमा पहा",
+      
+      // Analytics page
+      "feedbackAnalytics": "अभिप्राय विश्लेषण",
+      "todaysFeedback": "आजचे अभिप्राय",
+      "totalFeedback": "एकूण अभिप्राय",
+      "averageRating": "सरासरी रेटिंग",
+      "monthlyFeedbackTrends": "मासिक अभिप्राय ट्रेंड्स",
+      "count": "संख्या",
+      
+      // Month names
+      "Jan": "जाने",
+      "Feb": "फेब्रु",
+      "Mar": "मार्च",
+      "Apr": "एप्रि",
+      "May": "मे",
+      "Jun": "जून",
+      "Jul": "जुलै",
+      "Aug": "ऑगस्ट",
+      "Sep": "सप्टें",
+      "Oct": "ऑक्टो",
+      "Nov": "नोव्हें",
+      "Dec": "डिसें"
     }
   }
 };
@@ -147,7 +296,7 @@ const getStoredLanguage = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const langParam = urlParams.get('lang');
-      if (langParam && ['en', 'hi', 'mr'].includes(langParam)) {
+      if (langParam && ['en', 'mr'].includes(langParam)) {
         return langParam;
       }
     } catch (e) {

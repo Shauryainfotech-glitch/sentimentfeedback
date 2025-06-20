@@ -6,7 +6,6 @@ import { useLanguage } from '../context/LanguageContext';
 // Language name mapping for display
 const languageNames = {
   en: 'English',
-  hi: 'हिंदी',
   mr: 'मराठी'
 };
 

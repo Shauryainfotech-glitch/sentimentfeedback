@@ -26,11 +26,57 @@ const monthNames = [
 // Colors for the donut chart sections
 const DEPARTMENT_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#6B8E23', '#9370DB'];
 
+// Colors for departments needing improvement
+const IMPROVEMENT_THRESHOLD = 5;
+const IMPROVEMENT_COLOR = '#F44336'; // Red color for departments needing improvement
+const GOOD_COLOR = '#4CAF50'; // Green color for departments in good standing
+
+// Department name mappings between languages
+const departmentNameMappings = {
+  // English department names with multi-language variations
+  'Traffic': ['Traffic', 'वाहतूक', 'ट्रॅफिक', 'वाहतूक विभाग'],
+  'Women Safety': ['Women Safety', 'महिला सुरक्षा', 'महिला सुरक्षा विभाग'],
+  'Narcotic Drugs': ['Narcotic Drugs', 'अमली पदार्थ', 'ड्रग्स', 'अमली पदार्थ विभाग'],
+  'Cyber Crime': ['Cyber Crime', 'सायबर गुन्हे', 'सायबर', 'सायबर क्राईम', 'सायबर गुन्हे विभाग']
+};
+
+// Function to normalize text for better matching
+const normalizeText = (text) => {
+  if (!text) return '';
+  return text.trim().toLowerCase();
+};
+
+// Function to get standardized English department name from any language variant
+const getStandardDepartmentName = (deptName) => {
+  if (!deptName) return deptName;
+  
+  // Try exact match first
+  for (const [englishName, translations] of Object.entries(departmentNameMappings)) {
+    const normalizedDeptName = normalizeText(deptName);
+    
+    // Check for exact matches
+    const normalizedTranslations = translations.map(t => normalizeText(t));
+    if (normalizedTranslations.includes(normalizedDeptName)) {
+      return englishName;
+    }
+    
+    // Check for partial matches (if the department name contains one of our known translations)
+    for (const translation of normalizedTranslations) {
+      if (normalizedDeptName.includes(translation) || translation.includes(normalizedDeptName)) {
+        return englishName;
+      }
+    }
+  }
+  
+  return deptName; // Return original if no mapping found
+}
+
 const AnalyticsPage = () => {
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
   const [departmentData, setDepartmentData] = useState([]);
+  const [improvementData, setImprovementData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -106,6 +152,7 @@ const AnalyticsPage = () => {
       };
     });
     
+    
     // Process ratings from feedback
     feedbackData.forEach(item => {
       let deptRatings = item.departmentRatings;
@@ -119,38 +166,51 @@ const AnalyticsPage = () => {
       deptRatings.forEach(dept => {
         if (!dept || !dept.department) return;
         
+        // Standardize department name using the multilingual mapping
+        const standardDeptName = getStandardDepartmentName(dept.department);
+        console.log(`Processing analytics for: ${dept.department} → ${standardDeptName}`);
+        
         // Only process specified departments
-        if (specifiedDepartments.includes(dept.department)) {
+        if (specifiedDepartments.includes(standardDeptName)) {
           // Convert rating to number if it's a string
           const rating = typeof dept.rating === 'string' ? parseFloat(dept.rating) : dept.rating;
           
           if (!isNaN(rating)) {
-            departmentStats[dept.department].sum += rating;
-            departmentStats[dept.department].count++;
+            departmentStats[standardDeptName].sum += rating;
+            departmentStats[standardDeptName].count++;
           }
+        } else {
+          console.log(`Department not found in standard list: ${standardDeptName}`);
         }
       });
     });
     
-    // Calculate average ratings and convert to array format for PieChart
-    const departmentsArray = Object.keys(departmentStats)
-      .filter(dept => departmentStats[dept].count > 0) // Only include departments with ratings
-      .map(name => {
-        const avg = departmentStats[name].sum / departmentStats[name].count;
+    // Generate formatted department data for chart
+    const formattedData = Object.entries(departmentStats)
+      .filter(([_, stats]) => stats.count > 0)
+      .map(([department, stats]) => {
+        const avgRating = parseFloat((stats.sum / stats.count).toFixed(1));
         return {
-          name,
-          value: parseFloat(avg.toFixed(1)), // Round to 1 decimal
-          count: departmentStats[name].count // Keep count for tooltip
+          name: department,
+          value: avgRating,
+          count: stats.count,
+          needsImprovement: avgRating < IMPROVEMENT_THRESHOLD
         };
       });
     
-    // Sort by average rating (descending)
-    departmentsArray.sort((a, b) => b.value - a.value);
+    // Create data for improvement chart - sort by rating (ascending)
+    const improvementData = [...formattedData]
+      .sort((a, b) => a.value - b.value)
+      .map(dept => ({
+        ...dept,
+        fillColor: dept.needsImprovement ? IMPROVEMENT_COLOR : GOOD_COLOR
+      }));
     
-    setDepartmentData(departmentsArray);
+    setDepartmentData(formattedData);
+    setImprovementData(improvementData);
     setLoading(false);
     
-    console.log('Real-time department ratings updated:', departmentsArray);
+    console.log('Real-time department ratings updated:', departmentData);
   };
   
   // Process feedback data into analytics metrics
@@ -309,6 +369,9 @@ const AnalyticsPage = () => {
           Updated: {new Date().toLocaleTimeString()} (refreshes every 5 minutes)
         </div>
       </div>
+      
+      {/* Department Improvement Chart */}
+    
     </div>
   );
 

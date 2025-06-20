@@ -21,8 +21,48 @@ const COLORS = {
   negative: '#F44336'  // Red for negative (1-3)
 };
 
-// Department list for categorization
+// Department list for categorization (English names)
 const departments = ['Traffic', 'Women Safety', 'Narcotic Drugs', 'Cyber Crime'];
+
+// Department name mappings between languages
+const departmentNameMappings = {
+  // English department names with multi-language variations
+  'Traffic': ['Traffic', 'वाहतूक', 'ट्रॅफिक', 'वाहतूक विभाग'],
+  'Women Safety': ['Women Safety', 'महिला सुरक्षा', 'महिला सुरक्षा विभाग'],
+  'Narcotic Drugs': ['Narcotic Drugs', 'अमली पदार्थ', 'ड्रग्स', 'अमली पदार्थ विभाग'],
+  'Cyber Crime': ['Cyber Crime', 'सायबर गुन्हे', 'सायबर', 'सायबर क्राईम', 'सायबर गुन्हे विभाग']
+};
+
+// Function to normalize text for better matching
+const normalizeText = (text) => {
+  if (!text) return '';
+  return text.trim().toLowerCase();
+};
+
+// Function to get standardized English department name from any language variant
+const getStandardDepartmentName = (deptName) => {
+  if (!deptName) return deptName;
+  
+  // Try exact match first
+  for (const [englishName, translations] of Object.entries(departmentNameMappings)) {
+    const normalizedDeptName = normalizeText(deptName);
+    
+    // Check for exact matches
+    const normalizedTranslations = translations.map(t => normalizeText(t));
+    if (normalizedTranslations.includes(normalizedDeptName)) {
+      return englishName;
+    }
+    
+    // Check for partial matches (if the department name contains one of our known translations)
+    for (const translation of normalizedTranslations) {
+      if (normalizedDeptName.includes(translation) || translation.includes(normalizedDeptName)) {
+        return englishName;
+      }
+    }
+  }
+  
+  return deptName; // Return original if no mapping found
+};
 
 const SentimentPage = () => {
   const { t } = useTranslation();
@@ -133,11 +173,17 @@ const SentimentPage = () => {
         if (Array.isArray(deptRatings)) {
           deptRatings.forEach(deptRating => {
             if (deptRating && deptRating.department && deptRating.rating) {
-              const deptIndex = departments.findIndex(d => d === deptRating.department);
+              // Map department name from any language to standard English name
+              const standardDeptName = getStandardDepartmentName(deptRating.department);
+              console.log(`Processing sentiment for: ${deptRating.department} → ${standardDeptName}`);
+              
+              const deptIndex = departments.findIndex(d => d === standardDeptName);
               if (deptIndex >= 0) {
                 const deptSentiment = categorizeSentiment(deptRating.rating);
                 departmentData[deptIndex][deptSentiment]++;
                 departmentData[deptIndex].total++;
+              } else {
+                console.log(`Department not found in standard list: ${standardDeptName}`);
               }
             }
           });
@@ -253,18 +299,58 @@ const SentimentPage = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="sentiment-stats">
-          <div className="sentiment-stat-item">
-            <div className="sentiment-color-box" style={{ backgroundColor: '#4CAF50' }}></div>
-            <span>{t('positive')}: {sentiment?.sentimentAnalysis.positive}%</span>
+        <div className="sentiment-stats" style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          marginTop: '20px',
+          width: '100%',
+          padding: '15px 20px',
+          backgroundColor: '#f9f9f9',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          margin: '20px auto'
+        }}>
+          <div className="sentiment-stat-item" style={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginRight: '30px'
+          }}>
+            <div className="sentiment-color-box" style={{ 
+              backgroundColor: '#4CAF50',
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              marginRight: '8px'
+            }}></div>
+            <span><strong>{t('positive')}:</strong> {sentiment?.sentimentAnalysis.positive}%</span>
           </div>
-          <div className="sentiment-stat-item">
-            <div className="sentiment-color-box" style={{ backgroundColor: '#FF9800' }}></div>
-            <span>{t('neutral')}: {sentiment?.sentimentAnalysis.neutral}%</span>
+          <div className="sentiment-stat-item" style={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginRight: '30px'
+          }}>
+            <div className="sentiment-color-box" style={{ 
+              backgroundColor: '#FF9800',
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              marginRight: '8px'
+            }}></div>
+            <span><strong>{t('neutral')}:</strong> {sentiment?.sentimentAnalysis.neutral}%</span>
           </div>
-          <div className="sentiment-stat-item">
-            <div className="sentiment-color-box" style={{ backgroundColor: '#F44336' }}></div>
-            <span>{t('negative')}: {sentiment?.sentimentAnalysis.negative}%</span>
+          <div className="sentiment-stat-item" style={{ 
+            display: 'flex', 
+            alignItems: 'center'
+          }}>
+            <div className="sentiment-color-box" style={{ 
+              backgroundColor: '#F44336',
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              marginRight: '8px'
+            }}></div>
+            <span><strong>{t('negative')}:</strong> {sentiment?.sentimentAnalysis.negative}%</span>
           </div>
         </div>
       </div>
@@ -279,12 +365,12 @@ const SentimentPage = () => {
     
     return (
       <div className="dashboard-card category-sentiment">
-        {/* Title moved outside chart container to appear above the chart */}
-        <h3 style={{ width: '100%', textAlign: 'center', marginBottom: '15px' }}>
+        {/* Title positioned completely outside the chart with increased margin */}
+        <h3 style={{ width: '100%', textAlign: 'center', marginBottom: '80px', marginTop: '-30px', position: 'relative', zIndex: 5 }}>
           {t('sentimentAnalysisByCategory')}
         </h3>
-        <div className="chart-container" style={{ position: 'relative' }}>
-          <ResponsiveContainer width="100%" height={isMobile ? 400 : 400}>
+        <div className="chart-container" style={{ position: 'relative', paddingTop: '10px', marginTop: '5px' }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 380 : 380}>
             <BarChart
               data={sentiment?.sentimentByCategory}
               margin={isMobile ? { top: 5, right: 20, left: 10, bottom: 30 } : 

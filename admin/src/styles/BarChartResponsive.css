@@ -1,0 +1,168 @@
+/* Bar Chart Responsive Styles - Comprehensive Update */
+
+/* Base chart styling */
+.chart-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  margin-bottom: 20px;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+/* Ensure everything inside the chart is responsive */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-responsive-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Make sure the chart fits within container with proper aspect ratio */
+.recharts-wrapper {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix positioning and sizing of chart elements */
+.recharts-surface {
+  overflow: visible;
+}
+
+.recharts-cartesian-grid {
+  width: calc(100% - 30px) !important;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.1);
+  stroke-dasharray: 3 3;
+}
+
+/* Adjust labels and text */
+.recharts-cartesian-axis-tick-value {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  fill: #666;
+}
+
+.department-label {
+  font-weight: 500;
+  font-size: 12px;
+  word-spacing: -1px;
+  text-rendering: optimizeLegibility;
+}
+
+.recharts-legend-wrapper {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+}
+
+.recharts-default-legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 10px 0 0 !important;
+}
+
+/* Custom tooltip enhancements */
+.custom-tooltip {
+  max-width: 220px;
+  width: auto;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Mobile optimizations */
+@media screen and (max-width: 768px) {
+  .chart-card {
+    padding: 12px;
+    margin: 0 -5px 20px;
+    width: calc(100% + 10px);
+  }
+  
+  .recharts-wrapper {
+    min-height: 300px;
+    margin: 0 auto;
+    width: 100% !important;
+  }
+  
+  .recharts-cartesian-axis.recharts-yAxis {
+    width: auto !important;
+    font-size: 11px;
+  }
+  
+  .recharts-cartesian-axis.recharts-yAxis text {
+    font-size: 11px;
+  }
+  
+  .department-label {
+    font-size: 11px;
+  }
+  
+  .recharts-cartesian-axis.recharts-xAxis text {
+    font-size: 11px;
+  }
+  
+  .custom-tooltip {
+    max-width: 180px;
+  }
+}
+
+/* Small mobile optimizations */
+@media screen and (max-width: 576px) {
+  .chart-card {
+    padding: 10px 5px;
+    margin: 0 -10px 20px;
+    width: calc(100% + 20px);
+    border-radius: 5px;
+  }
+  
+  .recharts-wrapper {
+    min-height: 300px;
+    overflow: visible;
+  }
+  
+  .recharts-legend-item {
+    margin-right: 10px !important;
+  }
+  
+  .recharts-legend-item-text {
+    font-size: 12px !important;
+  }
+  
+  .department-label {
+    font-size: 10px;
+    font-weight: 600;
+  }
+  
+  .recharts-cartesian-axis-tick-value {
+    font-size: 10px;
+  }
+  
+  /* Fix horizontal bar positioning for small screens */
+  .recharts-layer.recharts-bar-rectangles {
+    transform: translateX(0);
+  }
+  
+  /* Ensure X and Y axis labels don't get cut off */
+  .recharts-surface {
+    overflow: visible;
+    margin-left: 10px;
+  }
+  
+  /* More space for Y-axis labels */
+  .recharts-cartesian-grid {
+    margin-left: 15px;
+  }
+  
+  .custom-tooltip {
+    max-width: 150px;
+    font-size: 12px;
+  }
+}

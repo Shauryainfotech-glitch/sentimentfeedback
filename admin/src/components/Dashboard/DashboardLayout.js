@@ -13,6 +13,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState('');
+  const [expandCorrectiveMeasures, setExpandCorrectiveMeasures] = useState(false);
 
   // Language is now handled by i18n.js with localStorage persistence
 
@@ -115,9 +116,10 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/feedback" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('receivedFeedback') : ""}  // Show title attribute only when sidebar is collapsed
+                style={{color: 'white'}}
               >
-                <span className="icon">💬</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('receivedFeedback')}</span>
+                <span className="icon" style={{color: 'white'}}>💬</span>
+                <span className="text" style={{color: 'white'}}>{t('receivedFeedback')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/analytics" ? "active" : ""}>
@@ -125,9 +127,10 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/analytics" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('analytics') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">📊</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('analytics')}</span>
+                <span className="icon" style={{color: 'white'}}>📊</span>
+                <span className="text" style={{color: 'white'}}>{t('analytics')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/sentiment" ? "active" : ""}>
@@ -135,11 +138,26 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/sentiment" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('sentimentAnalysis') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">📈</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('sentimentAnalysis')}</span>
+                <span className="icon" style={{color: 'white'}}>📈</span>
+                <span className="text" style={{color: 'white'}}>{t('sentimentAnalysis')}</span>
               </Link>
             </li>
+            
+            {/* Corrective Measures */}
+            <li className={location.pathname === "/admin/dashboard/corrective-measures" ? "active" : ""}>
+              <Link 
+                to="/admin/dashboard/corrective-measures" 
+                onClick={isMobile ? toggleSidebar : undefined}
+                title={!isOpen ? t('correctiveMeasures') : ""}
+                style={{color: 'white'}}
+              >
+                <span className="icon" style={{color: 'white'}}>🔧</span>
+                <span className="text" style={{color: 'white'}}>{t('correctiveMeasures')}</span>
+              </Link>
+            </li>
+            
             <li className="logout">
               <a 
                 href="#" 
@@ -148,9 +166,10 @@ const DashboardLayout = () => {
                   handleLogout(e);
                 }}
                 title={!isOpen ? t('logout') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">🚪</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('logout')}</span>
+                <span className="icon" style={{color: 'white'}}>🚪</span>
+                <span className="text" style={{color: 'white'}}>{t('logout')}</span>
               </a>
             </li>
           </ul>
