@@ -284,14 +284,14 @@ const SentimentPage = () => {
           {t('sentimentAnalysisByCategory')}
         </h3>
         <div className="chart-container" style={{ position: 'relative' }}>
-          <ResponsiveContainer width="100%" height={isMobile ? 300 : 400}>
+          <ResponsiveContainer width="100%" height={isMobile ? 400 : 400}>
             <BarChart
               data={sentiment?.sentimentByCategory}
-              margin={isMobile ? { top: 20, right: 10, left: 0, bottom: 60 } : 
+              margin={isMobile ? { top: 5, right: 20, left: 10, bottom: 30 } : 
                      isTablet ? { top: 20, right: 20, left: 10, bottom: 60 } : 
                               { top: 20, right: 30, left: 20, bottom: 5 }}
-              barGap={0}
-              barCategoryGap={isMobile ? 8 : 20}
+              barGap={2}
+              barCategoryGap={isMobile ? 15 : 20}
               layout={isMobile ? "vertical" : "horizontal"}
             >
               <CartesianGrid strokeDasharray="3 3" />
@@ -306,7 +306,9 @@ const SentimentPage = () => {
               ) : (
                 <XAxis 
                   type="number" 
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${value}%`}
+                  domain={[0, 100]}
                 />
               )}
               {!isMobile ? (
@@ -315,19 +317,22 @@ const SentimentPage = () => {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={80} 
-                  tick={{ fontSize: 10 }}
+                  width={100} 
+                  tick={{ fontSize: 12, fontWeight: 'bold' }}
+                  axisLine={{ stroke: '#ccc' }}
                 />
               )}
               <Tooltip formatter={(value) => `${value}%`} />
               <Legend 
-                wrapperStyle={{ paddingTop: '10px' }} 
-                iconSize={isMobile ? 8 : 10}
-                layout={isMobile ? "horizontal" : "horizontal"}
+                wrapperStyle={{ paddingTop: '10px', fontSize: isMobile ? '12px' : '14px' }} 
+                iconSize={isMobile ? 10 : 10}
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
               />
-              <Bar dataKey="positive" name={t('positive')} fill="#4CAF50" />
-              <Bar dataKey="neutral" name={t('neutral')} fill="#FF9800" />
-              <Bar dataKey="negative" name={t('negative')} fill="#F44336" />
+              <Bar dataKey="positive" name={t('positive')} fill="#4CAF50" barSize={isMobile ? 20 : 20} />
+              <Bar dataKey="neutral" name={t('neutral')} fill="#FF9800" barSize={isMobile ? 20 : 20} />
+              <Bar dataKey="negative" name={t('negative')} fill="#F44336" barSize={isMobile ? 20 : 20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
