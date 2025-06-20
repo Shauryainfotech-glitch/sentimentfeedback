@@ -62,7 +62,7 @@ const submitFeedback = async (req, res) => {
       imageUrl,
     });
 
-    res.status(201).json({ message: 'Feedback submitted successfully.', id: feedback.id });
+    res.status(201).json({ message: 'Feedback submitted successfully.' });
   } catch (error) {
     console.error('Error saving feedback:', error);
     res.status(500).json({ error: 'Server error: ' + error.message });

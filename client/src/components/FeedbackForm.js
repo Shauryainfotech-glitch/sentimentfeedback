@@ -20,15 +20,9 @@ const translations = {
     add: "Add",
     remove: "Remove",
     success: "Feedback submitted successfully.",
-    error:
-      "There was an issue submitting your feedback. Please try again later.",
+    error: "There was an issue submitting your feedback. Please try again later.",
     descriptionNote: "Write what you feel (max 50 words)",
-    departmentList: [
-      "Traffic",
-      "Women Safety",
-      "Narcotic Drugs",
-      "Cyber Crime",
-    ],
+    departmentList: ["Traffic", "Women Safety", "Narcotic Drugs", "Cyber Crime"],
     departmentRatingsHeading: "Department Ratings",
     rating: "Rating",
     alreadyRated: "department has already been rated",
@@ -52,8 +46,7 @@ const translations = {
     add: "जोडा",
     remove: "काढा",
     success: "अभिप्राय यशस्वीरित्या पाठवला गेला.",
-    error:
-      "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+    error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
     descriptionNote: "तुम्हाला जे वाटतं ते लिहा (कमाल ५० शब्दांची सीमा)",
     departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ", "सायबर गुन्हे"],
     departmentRatingsHeading: "विभागानुसार रेटिंग",
@@ -107,25 +100,15 @@ const FeedbackForm = () => {
     } else if (name === "image" && files && files[0]) {
       const file = files[0];
 
-      // Check file type
       if (!file.type.startsWith("image/")) {
-        toast.error(t.fileTypeError, {
-          position: "top-center",
-          autoClose: 5000,
-          theme: "colored",
-        });
+        toast.error(t.fileTypeError, { position: "top-center", autoClose: 5000, theme: "colored" });
         e.target.value = null;
         return;
       }
 
-      // Check file size (10MB = 10 * 1024 * 1024 bytes)
       const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
-        toast.error(t.fileSizeError, {
-          position: "top-center",
-          autoClose: 5000,
-          theme: "colored",
-        });
+        toast.error(t.fileSizeError, { position: "top-center", autoClose: 5000, theme: "colored" });
         e.target.value = null;
         return;
       }
@@ -139,7 +122,7 @@ const FeedbackForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return;
 
     if (!/^\d{10}$/.test(formData.phone)) {
       toast.error(t.invalidPhone, {
@@ -160,36 +143,26 @@ const FeedbackForm = () => {
       });
       form.append("departmentRatings", JSON.stringify(departmentRatings));
 
-      // Set timeout for the request (10 seconds)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/feedback`, 
+        `${process.env.REACT_APP_API_URL}/api/feedback`,
         form,
         {
-          signal: controller.signal,
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          timeout: 10000, // 10 second timeout
         }
       );
 
-      clearTimeout(timeoutId);
-      
       const endTime = Date.now();
       const submissionTime = endTime - startTime;
-      
-      console.log(`Feedback submitted successfully in ${submissionTime}ms`);
-      
+      console.log(`✅ Feedback submitted in ${submissionTime}ms`);
+
       toast.success(t.success, {
         position: "top-center",
-        autoClose: 3000, // Reduced from 5000ms
+        autoClose: 3000,
         theme: "colored",
       });
-      
-      // Reset form
+
       setFormData({
         name: "",
         phone: "",
@@ -199,24 +172,20 @@ const FeedbackForm = () => {
       });
       setDepartmentRatings([]);
       if (fileInputRef.current) fileInputRef.current.value = null;
-      
+
     } catch (err) {
       const endTime = Date.now();
       const submissionTime = endTime - startTime;
-      
-      console.error(`Feedback submission failed after ${submissionTime}ms:`, err);
-      
+      console.error(`❌ Feedback submission failed after ${submissionTime}ms:`, err);
+
       let errorMessage = t.error;
-      if (err.code === 'ECONNABORTED' || err.name === 'AbortError') {
-        errorMessage = language === "mr" 
-          ? "अर्ज पाठवण्यास वेळ लागत आहे. कृपया पुन्हा प्रयत्न करा."
-          : "Request is taking too long. Please try again.";
-      } else if (err.response?.status === 413) {
+
+      if (err.response?.status === 413) {
         errorMessage = language === "mr"
           ? "फाईल खूप मोठी आहे. कृपया लहान फाईल निवडा."
           : "File is too large. Please select a smaller file.";
       }
-      
+
       toast.error(errorMessage, {
         position: "top-center",
         autoClose: 5000,
@@ -323,8 +292,8 @@ const FeedbackForm = () => {
             rows="4"
           ></textarea>
           <div className="form-text text-end text-muted mt-1">
-            {formData.description.trim().split(/\s+/).filter(Boolean).length} /
-            50 {language === "mr" ? "शब्द" : "words"}
+            {formData.description.trim().split(/\s+/).filter(Boolean).length} / 50{" "}
+            {language === "mr" ? "शब्द" : "words"}
           </div>
         </div>
 
@@ -359,10 +328,7 @@ const FeedbackForm = () => {
         </div>
 
         <div className="mb-4 border rounded p-3 bg-light">
-          <label
-            className="form-label fw-bold mb-2"
-            style={{ color: "#0A2362" }}
-          >
+          <label className="form-label fw-bold mb-2" style={{ color: "#0A2362" }}>
             {t.departmentRatingsHeading}
           </label>
           <div className="row g-2 align-items-center">
