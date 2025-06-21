@@ -19,6 +19,7 @@
   top: 0;
   left: 0;
   z-index: 1000;
+  width: auto;
 }
 
 .sidebar-header {
@@ -73,9 +74,44 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.sidebar li.active a {
+.sidebar li.active a,
+.sidebar li.active .menu-item-with-dropdown {
   background-color: rgba(255, 255, 255, 0.2);
   border-left: 3px solid white;
+}
+
+/* Menu item with dropdown styling */
+.menu-item-with-dropdown {
+  padding: 12px 15px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item-with-dropdown:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item-header {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-indicator {
+  margin-left: 5px;
+  font-size: 12px;
+}
+
+/* Submenu styling */
+.submenu {
+  padding-left: 0 !important;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.submenu li a {
+  padding-left: 40px;
+}
+
+.submenu li.active a {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .sidebar .icon {
@@ -88,6 +124,12 @@
 
 .sidebar .text {
   white-space: nowrap;
+  display: none; /* Hidden by default */
+}
+
+/* Show text when sidebar is open */
+.sidebar.open .text {
+  display: inline; /* Show when sidebar is open */
 }
 
 .sidebar .logout {
@@ -204,8 +246,15 @@
     width: 60px !important;
   }
   
-  .sidebar .text {
+  /* Only hide text when sidebar is not open */
+  .sidebar:not(.open) .text {
     display: none !important;
+  }
+  
+  /* Show text when sidebar is open */
+  .sidebar.open .text {
+    display: inline !important;
+    color: white !important;
   }
   
   .main-content {
@@ -287,6 +336,12 @@
   
   .sidebar.open {
     width: 200px !important;
+  }
+  
+  /* Ensure text is shown when sidebar is open */
+  .sidebar.open .text {
+    display: inline !important;
+    color: white !important;
   }
   
   .main-content {

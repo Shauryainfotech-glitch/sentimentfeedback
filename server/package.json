@@ -39,8 +39,5 @@
     "pg-hstore": "^2.3.4",
     "sentiment": "^5.0.2",
     "sequelize": "^6.37.7"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.0"
   }
 }

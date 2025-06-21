@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ForgotPassword from './ForgotPassword'; // Import ForgotPassword component
 import '../styles/AdminLogin.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+ 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -85,7 +87,7 @@ const AdminLogin = () => {
               <div className={`form-group ${!emailValid ? 'has-error' : ''}`}>
                 <label htmlFor="email">Email</label>
                 <div className="input-wrapper">
-                  <i className="input-icon email-icon">✉</i>
+                  <i className="input-icon email-icon"></i>
                   <input
                     type="email"
                     id="email"
@@ -103,7 +105,7 @@ const AdminLogin = () => {
               <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <div className="input-wrapper">
-                  <i className="input-icon password-icon">🔒</i>
+                  <i className="input-icon password-icon"></i>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
@@ -119,7 +121,7 @@ const AdminLogin = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
                   </button>
                 </div>
               </div>

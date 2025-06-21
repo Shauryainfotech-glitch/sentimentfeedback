@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../../styles/Dashboard.css";
@@ -10,9 +10,11 @@ const DashboardLayout = () => {
   const { currentLanguage } = useLanguage(); // Use language context
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState('');
+  const [expandCorrectiveMeasures, setExpandCorrectiveMeasures] = useState(false);
 
   // Language is now handled by i18n.js with localStorage persistence
 
@@ -58,9 +60,14 @@ const DashboardLayout = () => {
     setIsOpen(!isOpen);
   };
   
-  // Logout function
-  const handleLogout = async (e) => {
+  // Function to show logout confirmation modal
+  const handleLogoutClick = (e) => {
     e.preventDefault();
+    setLogoutModalOpen(true);
+  };
+
+  // Logout function after confirmation
+  const handleLogout = async () => {
     const token = localStorage.getItem('adminToken');
     
     try {
@@ -77,12 +84,16 @@ const DashboardLayout = () => {
       // Remove token from localStorage
       localStorage.removeItem('adminToken');
       
+      // Close the modal
+      setLogoutModalOpen(false);
+      
       // Redirect to login page
       navigate('/admin/login');
     } catch (error) {
       console.error('Logout error:', error);
       // Even if the API call fails, remove the token and redirect
       localStorage.removeItem('adminToken');
+      setLogoutModalOpen(false);
       navigate('/admin/login');
     }
   };
@@ -115,9 +126,10 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/feedback" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('receivedFeedback') : ""}  // Show title attribute only when sidebar is collapsed
+                style={{color: 'white'}}
               >
-                <span className="icon">💬</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('receivedFeedback')}</span>
+                <span className="icon" style={{color: 'white'}}>💬</span>
+                <span className="text" style={{color: 'white'}}>{t('receivedFeedback')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/analytics" ? "active" : ""}>
@@ -125,9 +137,10 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/analytics" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('analytics') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">📊</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('analytics')}</span>
+                <span className="icon" style={{color: 'white'}}>📊</span>
+                <span className="text" style={{color: 'white'}}>{t('analytics')}</span>
               </Link>
             </li>
             <li className={location.pathname === "/admin/dashboard/sentiment" ? "active" : ""}>
@@ -135,22 +148,38 @@ const DashboardLayout = () => {
                 to="/admin/dashboard/sentiment" 
                 onClick={isMobile ? toggleSidebar : undefined}
                 title={!isOpen ? t('sentimentAnalysis') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">📈</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('sentimentAnalysis')}</span>
+                <span className="icon" style={{color: 'white'}}>📈</span>
+                <span className="text" style={{color: 'white'}}>{t('sentimentAnalysis')}</span>
               </Link>
             </li>
+            
+            {/* Corrective Measures */}
+            <li className={location.pathname === "/admin/dashboard/corrective-measures" ? "active" : ""}>
+              <Link 
+                to="/admin/dashboard/corrective-measures" 
+                onClick={isMobile ? toggleSidebar : undefined}
+                title={!isOpen ? t('correctiveMeasures') : ""}
+                style={{color: 'white'}}
+              >
+                <span className="icon" style={{color: 'white'}}>🔧</span>
+                <span className="text" style={{color: 'white'}}>{t('correctiveMeasures')}</span>
+              </Link>
+            </li>
+            
             <li className="logout">
               <a 
                 href="#" 
                 onClick={(e) => { 
                   if (isMobile) toggleSidebar();
-                  handleLogout(e);
+                  handleLogoutClick(e);
                 }}
                 title={!isOpen ? t('logout') : ""}
+                style={{color: 'white'}}
               >
-                <span className="icon">🚪</span>
-                <span className="text" style={{display: isOpen ? 'inline' : 'none'}}>{t('logout')}</span>
+                <span className="icon" style={{color: 'white'}}>🚪</span>
+                <span className="text" style={{color: 'white'}}>{t('logout')}</span>
               </a>
             </li>
           </ul>
@@ -183,6 +212,73 @@ const DashboardLayout = () => {
           <Outlet />
         </div>
       </div>
+      {/* Logout Confirmation Modal */}
+      {logoutModalOpen && (
+        <div 
+          className="modal-overlay"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}
+        >
+          <div 
+            className="modal-content"
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              width: '90%',
+              maxWidth: '400px',
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="modal-header" style={{ marginBottom: '15px' }}>
+              <h3 style={{ margin: 0 }}>{t('logout')}</h3>
+            </div>
+            <div className="modal-body" style={{ marginBottom: '20px' }}>
+              <p>{t('confirmLogout', 'Are you sure you want to logout?')}</p>
+            </div>
+            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button 
+                onClick={() => setLogoutModalOpen(false)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#f1f1f1',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('cancel', 'Cancel')}
+              </button>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('confirmYes', 'Yes, Logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

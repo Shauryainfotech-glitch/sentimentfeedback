@@ -21,11 +21,13 @@ const FeedbackPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   // Fetch feedback from the backend API
   const fetchFeedbacks = async () => {
     setLoading(true);
     setError(null);
+    setLastRefreshed(new Date());
   
     try {
       // Retrieve the JWT token from sessionStorage
@@ -63,10 +65,24 @@ const FeedbackPage = () => {
     }
   };
   
+  // Initial fetch when component mounts or language changes
   useEffect(() => {
-    // Fetch feedback when component mounts or language changes
     fetchFeedbacks();
   }, [t, currentLanguage]); // Re-run when language changes
+  
+  // Set up auto-refresh every 5 minutes
+  useEffect(() => {
+    // Initial fetch already handled by the above useEffect
+    
+    // Set up interval for auto-refresh every 5 minutes (300000 ms)
+    const refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing feedback data...');
+      fetchFeedbacks();
+    }, 300000);
+    
+    // Clean up the interval when component unmounts
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   // Function to export feedback data to CSV format for Excel download
   const exportToCSV = () => {
@@ -314,6 +330,10 @@ const FeedbackPage = () => {
         </div>
       )}
 
+      <div className="last-refreshed-info">
+        {t('lastRefreshed', 'Last refreshed')}: {lastRefreshed.toLocaleTimeString()}
+      </div>
+
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -343,7 +363,7 @@ const FeedbackPage = () => {
                   </div>
                 </div>
                 <div className="feedback-rating">
-                  <div className="rating-label">{t('overallRating', 'Rating')}:</div>
+                  <div className="rating-label">{t('rating', 'Rating:')}</div>
                   <div className="stars-container">
                     {[...Array(5)].map((_, i) => (
                       <span key={i} className={i < getOverallRatingStars(feedback.overallRating || feedback.rating) ? "star filled" : "star"}>★</span>
