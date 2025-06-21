@@ -18,37 +18,7 @@ const IMPROVEMENT_THRESHOLD = 5;
 const NEEDS_IMPROVEMENT_COLOR = '#F44336'; // Red for departments needing improvement
 const GOOD_STANDING_COLOR = '#4CAF50'; // Green for departments in good standing
 
-// Department-specific corrective measures
-const DEPARTMENT_MEASURES = {
-  'Cyber Crime': [
-    'Improve Response Time: Implement faster case processing workflow',
-    'Staff Training: Provide regular technical training on cybersecurity',
-    'Enhanced Communication: Update users on case status regularly',
-    'Private Sector Collaboration: Work with cybersecurity firms',
-    'Public Awareness Campaigns: Educate on common cybercrimes'
-  ],
-  'Women Safety': [
-    'Increase Patrols: Enhance surveillance in high-risk areas',
-    'Gender Sensitivity Training: Regular workshops for officers',
-    'Quick Response System: Implement mobile app for reporting',
-    'Community Outreach: Collaborate with local NGOs',
-    'Transparent Reporting: Create case tracking system'
-  ],
-  'Narcotic Drugs': [
-    'Better Investigation Techniques: Use advanced detection technology',
-    'Rehabilitation Programs: Partner with rehab centers',
-    'Public Education: Develop campaigns about drug dangers',
-    'International Coordination: Share intelligence across borders',
-    'Specialized Training: Train officers on handling drug cases'
-  ],
-  'Traffic': [
-    'Increase Enforcement: Deploy officers at high-traffic areas',
-    'Infrastructure Improvements: Upgrade signaling systems',
-    'Safety Campaigns: Promote safe driving practices',
-    'Real-Time Monitoring: Implement traffic alert systems',
-    'Local Collaboration: Work with authorities on road safety'
-  ]
-};
+// No longer need hardcoded department measures - using translation system instead
 
 const CorrectiveMeasuresPage = () => {
   const { t } = useTranslation();
@@ -59,14 +29,8 @@ const CorrectiveMeasuresPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
 
-  // Department name mappings between languages
-  const departmentNameMappings = {
-    // English department names with multi-language variations (including potential variations with spaces, etc)
-    'Traffic': ['Traffic', 'वाहतूक', 'ट्रॅफिक', 'वाहतूक विभाग'],
-    'Women Safety': ['Women Safety', 'महिला सुरक्षा', 'महिला सुरक्षा विभाग'],
-    'Narcotic Drugs': ['Narcotic Drugs', 'अमली पदार्थ', 'ड्रग्स', 'अमली पदार्थ विभाग'],
-    'Cyber Crime': ['Cyber Crime', 'सायबर गुन्हे', 'सायबर', 'सायबर क्राईम', 'सायबर गुन्हे विभाग']
-  };
+  // Standard department list (English names)
+  const standardDepartments = ['Traffic', 'Women Safety', 'Narcotic Drugs', 'Cyber Crime'];
 
   // Function to normalize text for better matching (trim spaces, convert to lowercase)
   const normalizeText = (text) => {
@@ -80,23 +44,28 @@ const CorrectiveMeasuresPage = () => {
     
     console.log('Trying to map department name:', deptName);
     
-    // Try exact match first
-    for (const [englishName, translations] of Object.entries(departmentNameMappings)) {
-      const normalizedDeptName = normalizeText(deptName);
+    const normalizedDeptName = normalizeText(deptName);
+    
+    // Check if the input matches any of our i18n translated department names
+    for (const englishName of standardDepartments) {
+      // Convert department name to lowercase for key lookup
+      const deptKey = englishName.toLowerCase().replace(/ /g, '');
       
-      // Check for exact matches
-      const normalizedTranslations = translations.map(t => normalizeText(t));
-      if (normalizedTranslations.includes(normalizedDeptName)) {
-        console.log(`Mapped "${deptName}" to "${englishName}" (exact match)`);
+      // Get the translation for current language
+      const translatedName = t(deptKey, englishName);
+      
+      // Check if normalized version matches either English or translated version
+      if (normalizeText(englishName) === normalizedDeptName || 
+          normalizeText(translatedName) === normalizedDeptName) {
+        console.log('Mapped department name to:', englishName);
         return englishName;
       }
       
-      // Check for partial matches (if the department name contains one of our known translations)
-      for (const translation of normalizedTranslations) {
-        if (normalizedDeptName.includes(translation) || translation.includes(normalizedDeptName)) {
-          console.log(`Mapped "${deptName}" to "${englishName}" (partial match with "${translation}")`);
-          return englishName;
-        }
+      // Check for partial matches
+      if (normalizedDeptName.includes(normalizeText(englishName)) || 
+          normalizedDeptName.includes(normalizeText(translatedName))) {
+        console.log(`Mapped "${deptName}" to "${englishName}" (partial match)`);
+        return englishName;
       }
     }
     
@@ -190,8 +159,11 @@ const CorrectiveMeasuresPage = () => {
       .filter(([_, stats]) => stats.count > 0)
       .map(([department, stats]) => {
         const avgRating = parseFloat((stats.sum / stats.count).toFixed(1));
+        // Use department name as the i18n key (lowercase, no spaces)
+        const deptKey = department.toLowerCase().replace(/ /g, '');
         return {
-          name: department,
+          name: department,        // Keep original English name as data key
+          displayName: t(deptKey, department), // Translated display name
           value: avgRating,
           count: stats.count,
           needsImprovement: avgRating < IMPROVEMENT_THRESHOLD
@@ -215,29 +187,113 @@ const CorrectiveMeasuresPage = () => {
   // Custom tooltip formatter for the chart
   const customTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const dept = payload[0].payload;
+      const data = payload[0].payload;
+      const status = data.needsImprovement ? t('needsImprovement', 'Needs Improvement') : t('goodStanding', 'Good Standing');
       return (
         <div className="custom-tooltip">
-          <p className="dept-name">{dept.name}</p>
-          <p className="rating">Average Rating: {dept.value}/10</p>
-          <p className="status">
-            {dept.needsImprovement ? 
-              <span className="status-needs-improvement">Needs Improvement</span> : 
-              <span className="status-good">Good Standing</span>
-            }
+          <p className="department-name">{getTranslatedDepartmentName(data.name)}</p>
+          <p>{t('averageRating')}: <b>{data.value.toFixed(1)}/10</b></p>
+          <p className="rating-status">
+            {t('status')}: <span className={data.needsImprovement ? "needs-improvement" : "good-standing"}>
+              {status}
+            </span>
           </p>
         </div>
       );
     }
     return null;
   };
-  
+
   // Initial data fetch on component mount and when language changes
   useEffect(() => {
     fetchDepartmentData();
   }, [currentLanguage]);
 
-  // We're replacing this function with direct text in the UI components
+  // Function to get translated department name based on standard English name
+  const getTranslatedDepartmentName = (deptName) => {
+    // Get the standard English name first
+    const standardName = getStandardDepartmentName(deptName);
+    
+    // If we couldn't map it to a standard name, return the original
+    if (!standardName) return deptName;
+    
+    // Convert to lowercase and remove spaces for the key (ensuring correct key format)
+    let deptKey;
+    
+    // Map standard English names to correct i18n keys
+    if (standardName === 'Women Safety') {
+      deptKey = 'womenSafety';
+    } else if (standardName === 'Cyber Crime') {
+      deptKey = 'cyberCrime';
+    } else if (standardName === 'Narcotic Drugs') {
+      deptKey = 'narcoticDrugs';
+    } else if (standardName === 'Traffic') {
+      deptKey = 'traffic';
+    } else {
+      // Default fallback (convert spaces to nothing, lowercase)
+      deptKey = standardName.toLowerCase().replace(/ /g, '');
+    }
+    
+    console.log(`Translating department: ${standardName}, using key: ${deptKey}`);
+    
+    // Return the translated name
+    return t(deptKey, standardName);
+  };
+
+  // Function to get department-specific measures based on department name
+  const getDepartmentMeasures = (deptName) => {
+    // Get standardized English department name
+    const standardName = getStandardDepartmentName(deptName);
+    
+    if (!standardName) return [];
+    
+    // Debug - log the standardized name we're using
+    console.log('Getting measures for standardized department name:', standardName);
+    
+    // Map department names directly to their translation keys
+    // This ensures we get the correct measures for each department
+    let translationKey;
+    
+    // Convert to standard key based on exact department name
+    if (standardName === 'Women Safety') {
+      translationKey = 'womenSafety_measures';
+    } else if (standardName === 'Cyber Crime') {
+      translationKey = 'cyberCrime_measures';
+    } else if (standardName === 'Narcotic Drugs') {
+      translationKey = 'narcoticDrugs_measures';
+    } else if (standardName === 'Traffic') {
+      translationKey = 'traffic_measures';
+    } else {
+      // Fallback to original conversion method
+      const deptKey = standardName.toLowerCase().replace(/ /g, '');
+      translationKey = `${deptKey}_measures`;
+    }
+    
+    console.log('Using translation key:', translationKey);
+    
+    // Get measures from i18n
+    const measures = t(translationKey, { returnObjects: true });
+    
+    // Check if we got an array of measures (successful translation)
+    if (Array.isArray(measures)) {
+      return measures;
+    }
+    
+    // Fallback to default measures if translation not found
+    if (standardName && departmentData.find(d => d.name === standardName && d.needsImprovement)) {
+      return [
+        t('conductPerformanceReview'),
+        t('provideTraining'),
+        t('improveProcedures')
+      ];
+    } else {
+      return [
+        t('continueBestPractices'),
+        t('shareStrategies'),
+        t('recognizeAchievements')
+      ];
+    }
+  };
 
   // Split departments data based on improvement threshold
   const getDepartmentsByThreshold = () => {
@@ -252,17 +308,17 @@ const CorrectiveMeasuresPage = () => {
       <div className="departments-section mb-5">
         <h3 className="departments-heading">
           <span className="header-icon">📊</span>
-          Department Performance Overview
+          {t('departmentPerformanceOverview')}
         </h3>
         
         <p className="description mb-4">
-          Analysis of departments based on average feedback ratings (threshold: {IMPROVEMENT_THRESHOLD}/10).
+          {t('departmentsAnalysis', { threshold: IMPROVEMENT_THRESHOLD })}
         </p>
 
         <div className="chart-card">
           {departmentData.length === 0 ? (
             <div className="no-data text-center p-5">
-              <p>No feedback data available to analyze</p>
+              <p>{t('noFeedbackData')}</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={350}>
@@ -278,7 +334,7 @@ const CorrectiveMeasuresPage = () => {
                   type="number" 
                   domain={[0, 10]} 
                   label={{ 
-                    value: 'Average Rating', 
+                    value: t('averageRating'), 
                     position: 'insideBottom',
                     offset: -5
                   }}
@@ -301,7 +357,7 @@ const CorrectiveMeasuresPage = () => {
                           fontWeight="500"
                           className="department-label"
                         >
-                          {payload.value}
+                          {getTranslatedDepartmentName(payload.value)}
                         </text>
                       </g>
                     );
@@ -312,7 +368,7 @@ const CorrectiveMeasuresPage = () => {
                 <Legend />
                 <Bar 
                   dataKey="value" 
-                  name="Average Rating" 
+                  name={t('averageRating')} 
                   radius={[0, 4, 4, 0]}
                 >
                   {departmentData.map((entry, index) => (
@@ -338,7 +394,7 @@ const CorrectiveMeasuresPage = () => {
       <div className="departments-section mb-5">
         <h3 className="departments-heading">
           <span className="header-icon">⚠️</span>
-          Departments Below Threshold: {IMPROVEMENT_THRESHOLD}/10
+          {t('departmentsBelowThreshold').replace('{threshold}', IMPROVEMENT_THRESHOLD)}
         </h3>
         <div className="row ">
           {needsImprovement.length > 0 ? (
@@ -346,31 +402,24 @@ const CorrectiveMeasuresPage = () => {
               <div key={dept.name} className="col-md-6 col-lg-4 mb-4">
                 <div className="department-card needs-improvement-card mb-5">
                   <div className="department-card-header">
-                    <h5>{dept.name}</h5>
+                    <h5>{getTranslatedDepartmentName(dept.name)}</h5>
                     <span className="rating-badge danger">{dept.value}/10</span>
                   </div>
                   <div className="department-card-body">
-                    <p className="action-title">Suggested Actions:</p>
+                    <p className="action-title">{t('suggestedActions')}</p>
                     <ul className="action-list">
-                      {DEPARTMENT_MEASURES[dept.name] ? 
-                        DEPARTMENT_MEASURES[dept.name].map((measure, idx) => (
+                      {
+                        getDepartmentMeasures(dept.name).slice(0, 3).map((measure, idx) => (
                           <li key={idx}>{measure}</li>
-                        )).slice(0, 3) : 
-                        [
-                          <li key="1">Conduct performance review</li>,
-                          <li key="2">Provide additional training</li>,
-                          <li key="3">Improve department procedures</li>
-                        ]
+                        ))
                       }
                     </ul>
-                    {DEPARTMENT_MEASURES[dept.name] && DEPARTMENT_MEASURES[dept.name].length > 3 && (
-                      <button 
-                        className="view-more-btn" 
-                        onClick={() => handleOpenModal(dept.name, DEPARTMENT_MEASURES[dept.name])}
-                      >
-                        View More
-                      </button>
-                    )}
+                    <button 
+                      className="view-more-btn" 
+                      onClick={() => handleOpenModal(dept.name, getDepartmentMeasures(dept.name))}
+                    >
+                      {t('viewMore')}
+                    </button>
                   </div>
 
                 </div>
@@ -378,7 +427,7 @@ const CorrectiveMeasuresPage = () => {
             ))
           ) : (
             <div className="col-12">
-              <p className="no-data">No departments below threshold</p>
+              <p className="no-data">{t('noDepartmentsBelowThreshold')}</p>
             </div>
           )}
         </div>
@@ -394,7 +443,7 @@ const CorrectiveMeasuresPage = () => {
       <div className="departments-section mb-4">
         <h3 className="departments-heading">
           <span className="header-icon">✅</span>
-          Departments Above Threshold: {IMPROVEMENT_THRESHOLD}/10
+          {t('departmentsAboveThreshold').replace('{threshold}', IMPROVEMENT_THRESHOLD)}
         </h3>
         <div className="row">
           {goodStanding.length > 0 ? (
@@ -402,31 +451,24 @@ const CorrectiveMeasuresPage = () => {
               <div key={dept.name} className="col-md-6 col-lg-4 mb-4">
                 <div className="department-card good-standing-card mb-5">
                   <div className="department-card-header">
-                    <h5>{dept.name}</h5>
-                    <span className="rating-badge success">{dept.value}/10</span>
-                  </div>
+                  <h5>{getTranslatedDepartmentName(dept.name)}</h5>
+                  <span className="rating-badge success">{dept.value}/10</span>
+                </div>
                   <div className="department-card-body">
-                    <p className="action-title">Maintain Performance:</p>
+                    <p className="action-title">{t('correctiveActions')}</p>
                     <ul className="action-list">
-                      {DEPARTMENT_MEASURES[dept.name] ? 
-                        DEPARTMENT_MEASURES[dept.name].map((measure, idx) => (
+                      {
+                        getDepartmentMeasures(dept.name).slice(0, 3).map((measure, idx) => (
                           <li key={idx}>{measure}</li>
-                        )).slice(0, 3) : 
-                        [
-                          <li key="1">Continue best practices</li>,
-                          <li key="2">Share successful strategies</li>,
-                          <li key="3">Recognize department achievements</li>
-                        ]
+                        ))
                       }
                     </ul>
-                    {DEPARTMENT_MEASURES[dept.name] && DEPARTMENT_MEASURES[dept.name].length > 3 && (
-                      <button 
-                        className="view-more-btn" 
-                        onClick={() => handleOpenModal(dept.name, DEPARTMENT_MEASURES[dept.name])}
-                      >
-                        View More
-                      </button>
-                    )}
+                    <button 
+                      className="view-more-btn" 
+                      onClick={() => handleOpenModal(dept.name, getDepartmentMeasures(dept.name))}
+                    >
+                      {t('viewMore')}
+                    </button>
                   </div>
 
                 </div>
@@ -434,7 +476,7 @@ const CorrectiveMeasuresPage = () => {
             ))
           ) : (
             <div className="col-12">
-              <p className="no-data">No departments above threshold</p>
+              <p className="no-data">{t('noDepartmentsAboveThreshold')}</p>
             </div>
           )}
         </div>
@@ -476,38 +518,39 @@ const CorrectiveMeasuresPage = () => {
       return null;
     }
     
-    console.log('Rendering modal for department:', selectedDepartment.name);
+    // Get translated measures for the selected department
+    const departmentMeasures = getDepartmentMeasures(selectedDepartment.name);
     
     return (
       <div 
-        className="measures-modal-overlay" 
-        onClick={() => setModalOpen(false)} 
+        className="modal-overlay"
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: modalOpen ? 'flex' : 'none',
           justifyContent: 'center',
-          zIndex: 9999
+          alignItems: 'center',
+          zIndex: 1000
         }}
+        onClick={() => setModalOpen(false)}
       >
         <div 
-          className="measures-modal" 
-          onClick={(e) => e.stopPropagation()}
+          className="modal-content"
           style={{
             backgroundColor: 'white',
             borderRadius: '8px',
-            boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
             width: '90%',
             maxWidth: '500px',
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column'
           }}
+          onClick={e => e.stopPropagation()}
         >
           <div 
             className="measures-modal-header"
@@ -521,7 +564,7 @@ const CorrectiveMeasuresPage = () => {
               borderRadius: '8px 8px 0 0'
             }}
           >
-            <h3 style={{ margin: 0 }}>{selectedDepartment.name} Department</h3>
+            <h3 style={{ margin: 0 }}>{getTranslatedDepartmentName(selectedDepartment.name)} {t('department')}</h3>
             <button 
               className="close-modal-btn" 
               onClick={() => setModalOpen(false)}
@@ -544,7 +587,7 @@ const CorrectiveMeasuresPage = () => {
               maxHeight: '60vh'
             }}
           >
-            <h4 style={{ marginTop: 0 }}>Corrective Measures:</h4>
+            <h4 style={{ marginTop: 0 }}>{t('correctiveActions')}:</h4>
             <ul 
               className="modal-measures-list"
               style={{
@@ -552,7 +595,7 @@ const CorrectiveMeasuresPage = () => {
                 marginBottom: 0
               }}
             >
-              {selectedDepartment.measures.map((measure, idx) => (
+              {departmentMeasures.map((measure, idx) => (
                 <li 
                   key={idx}
                   style={{
@@ -583,7 +626,7 @@ const CorrectiveMeasuresPage = () => {
                 padding: '8px 16px',
                 cursor: 'pointer'
               }}
-            >Close</button>
+            >{t('close')}</button>
           </div>
         </div>
       </div>
@@ -593,7 +636,7 @@ const CorrectiveMeasuresPage = () => {
   return (
     <div className="corrective-measures-page">
       <div className="page-header">
-        <h1>Corrective Measures</h1>
+        <h1>{t('correctiveMeasures')}</h1>
       </div>
 
       {renderMeasuresModal()}
@@ -602,7 +645,7 @@ const CorrectiveMeasuresPage = () => {
         {loading ? (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Loading real-time data...</p>
+            <p>{t('loadingRealTimeData')}</p>
           </div>
         ) : error ? (
           <div className="error-container">
@@ -611,7 +654,7 @@ const CorrectiveMeasuresPage = () => {
               className="retry-button" 
               onClick={fetchDepartmentData}
             >
-              <span className="mr-2">🔄</span> Try Again
+              <span className="mr-2">🔄</span> {t('tryAgain')}
             </button>
           </div>
         ) : (
@@ -620,7 +663,6 @@ const CorrectiveMeasuresPage = () => {
       </div>
     </div>
   );
-
 };
 
 export default CorrectiveMeasuresPage;

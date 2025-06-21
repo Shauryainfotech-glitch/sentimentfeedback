@@ -17,10 +17,10 @@ const getRatingColor = (rating) => {
 };
 
 
-// Month names for displaying all 12 months
-const monthNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+// Month names will be translated using i18n
+const getMonthNames = (t) => [
+  t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), t('Jun'),
+  t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')
 ];
 
 // Colors for the donut chart sections
@@ -140,6 +140,12 @@ const AnalyticsPage = () => {
   };
   
   const processDepartmentData = (feedbackData) => {
+    if (!feedbackData || feedbackData.length === 0) {
+      setDepartmentData([]);
+      setImprovementData([]);
+      return;
+    }
+
     // List of specified departments we want to show
     const specifiedDepartments = ['Traffic', 'Women Safety', 'Narcotic Drugs', 'Cyber Crime'];
     
@@ -151,70 +157,105 @@ const AnalyticsPage = () => {
         count: 0
       };
     });
-    
-    
+
     // Process ratings from feedback
     feedbackData.forEach(item => {
-      let deptRatings = item.departmentRatings;
+      let deptRatings = item.departmentRatings || {};
       
-      if (!deptRatings) return;
       if (typeof deptRatings === 'string') {
         try { deptRatings = JSON.parse(deptRatings); } catch (e) { return; }
       }
-      if (!Array.isArray(deptRatings)) return;
       
-      deptRatings.forEach(dept => {
-        if (!dept || !dept.department) return;
-        
-        // Standardize department name using the multilingual mapping
-        const standardDeptName = getStandardDepartmentName(dept.department);
-        console.log(`Processing analytics for: ${dept.department} → ${standardDeptName}`);
-        
-        // Only process specified departments
-        if (specifiedDepartments.includes(standardDeptName)) {
-          // Convert rating to number if it's a string
-          const rating = typeof dept.rating === 'string' ? parseFloat(dept.rating) : dept.rating;
+      // Handle different data structures
+      if (Array.isArray(deptRatings)) {
+        deptRatings.forEach(dept => {
+          if (!dept || !dept.department) return;
           
-          if (!isNaN(rating)) {
-            departmentStats[standardDeptName].sum += rating;
-            departmentStats[standardDeptName].count++;
+          // Standardize department name using the multilingual mapping
+          const standardDeptName = getStandardDepartmentName(dept.department);
+          
+          // Only process specified departments
+          if (specifiedDepartments.includes(standardDeptName)) {
+            // Convert rating to number if it's a string
+            const rating = typeof dept.rating === 'string' ? parseFloat(dept.rating) : dept.rating;
+            
+            if (!isNaN(rating)) {
+              departmentStats[standardDeptName].sum += rating;
+              departmentStats[standardDeptName].count++;
+            }
           }
-        } else {
-          console.log(`Department not found in standard list: ${standardDeptName}`);
-        }
-      });
+        });
+      } else if (typeof deptRatings === 'object') {
+        // Handle object format {department: rating}
+        Object.entries(deptRatings).forEach(([deptName, rating]) => {
+          const standardDeptName = getStandardDepartmentName(deptName);
+          
+          if (specifiedDepartments.includes(standardDeptName)) {
+            const numRating = parseFloat(rating);
+            if (!isNaN(numRating)) {
+              departmentStats[standardDeptName].sum += numRating;
+              departmentStats[standardDeptName].count++;
+            }
+          }
+        });
+      }
     });
     
+    // Get translated name for each department based on current language
+    const getTranslatedDepartmentName = (englishName) => {
+      // Use the translation function to respect language selection
+      if (englishName === 'Traffic') return t('traffic', 'Traffic');
+      if (englishName === 'Women Safety') return t('womenSafety', 'Women Safety');
+      if (englishName === 'Narcotic Drugs') return t('narcoticDrugs', 'Narcotic Drugs');
+      if (englishName === 'Cyber Crime') return t('cyberCrime', 'Cyber Crime');
+      return englishName;
+    };
+
     // Generate formatted department data for chart
     const formattedData = Object.entries(departmentStats)
       .filter(([_, stats]) => stats.count > 0)
       .map(([department, stats]) => {
         const avgRating = parseFloat((stats.sum / stats.count).toFixed(1));
         return {
-          name: department,
+          name: getTranslatedDepartmentName(department),  // Display translated name based on current language
+          englishName: department,           // Keep English name for reference
           value: avgRating,
           count: stats.count,
           needsImprovement: avgRating < IMPROVEMENT_THRESHOLD
         };
       });
     
-    // Create data for improvement chart - sort by rating (ascending)
-    const improvementData = [...formattedData]
-      .sort((a, b) => a.value - b.value)
-      .map(dept => ({
-        ...dept,
-        fillColor: dept.needsImprovement ? IMPROVEMENT_COLOR : GOOD_COLOR
-      }));
+    // Sort departments by rating (ascending, so departments needing most attention come first)
+    formattedData.sort((a, b) => a.value - b.value);
     
+    // Set data for department rating chart
     setDepartmentData(formattedData);
+
+    // Create data for improvement chart
+    const improvementData = formattedData.map(dept => ({
+      ...dept,
+      fillColor: dept.needsImprovement ? IMPROVEMENT_COLOR : GOOD_COLOR
+    }));
+    
     setImprovementData(improvementData);
     setLoading(false);
-    
-    console.log('Real-time department ratings updated:', departmentData);
   };
   
   // Process feedback data into analytics metrics
   const processAnalyticsData = (feedbackData) => {
+    // Default data if no feedback is available
+    if (!feedbackData || feedbackData.length === 0) {
+      setAnalytics({
+        totalFeedback: 0,
+        todayFeedback: 0,
+        averageRating: 0,
+        departmentRatings: {},
+        monthlyTrends: getMonthNames(t).map(month => ({ month, count: 0 })),
+        recentFeedback: []
+      });
+      return;
+    }
+
     // Get current date for today's stats
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -261,7 +302,7 @@ const AnalyticsPage = () => {
     });
     
     // Create chart data with all 12 months
-    const monthlyTrends = monthNames.map((month, index) => ({
+    const monthlyTrends = getMonthNames(t).map((month, index) => ({
       month,
       count: monthCounts[index]
     }));
@@ -292,7 +333,7 @@ const AnalyticsPage = () => {
     <div className="dashboard-cards">
       <div className="dashboard-card today-feedback">
         <div className="card-content">
-          <h3>{t('todaysFeedback', "Today's Feedback")}</h3>
+          <h3>{t('todaysFeedback', "आजचा अभिप्राय")}</h3>
           <div className="card-value">{analytics?.todayFeedback || 0}</div>
         </div>
         <div className="card-icon">📬</div>
@@ -300,7 +341,7 @@ const AnalyticsPage = () => {
       
       <div className="dashboard-card total-feedback">
         <div className="card-content">
-          <h3>{t('totalFeedback', "Total Feedback")}</h3>
+          <h3>{t('totalFeedback', "एकूण अभिप्राय")}</h3>
           <div className="card-value">{analytics?.totalFeedback || 0}</div>
         </div>
         <div className="card-icon">📋</div>
@@ -308,7 +349,7 @@ const AnalyticsPage = () => {
       
       <div className="dashboard-card average-rating">
         <div className="card-content">
-          <h3>{t('averageRating', "Average Rating")}</h3>
+          <h3>{t('averageRating', "सरासरी मूल्यांकन")}</h3>
           <div className="card-value">{analytics?.averageRating || 0} / 10</div>
           <div className="rating-meter">
             <div 
@@ -324,7 +365,7 @@ const AnalyticsPage = () => {
       </div>
       
       <div className="trends-chart">
-        <h3>{t('monthlyFeedbackTrends', "Monthly Feedback Trends")}</h3>
+        <h3>{t('monthlyFeedbackTrends', "मासिक अभिप्राय प्रवृत्ती")}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={analytics?.monthlyTrends}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -339,7 +380,7 @@ const AnalyticsPage = () => {
       
       {/* Top Feedback Issues Donut Chart */}
       <div className="top-issues-chart">
-        <h3>{t('departmentRatings', "Department Ratings")} <span className="real-time-indicator">• Auto-refresh</span></h3>
+        <h3>{t('departmentRatings', "विभाग मूल्यांकन")} </h3>
         <div className="donut-chart-container">
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
@@ -360,13 +401,13 @@ const AnalyticsPage = () => {
                   <Cell key={`cell-${index}`} fill={DEPARTMENT_COLORS[index % DEPARTMENT_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value, name, {payload}) => [`Rating: ${value}/10 (${payload.count} feedbacks)`, name]} />
+              <Tooltip formatter={(value, name, {payload}) => [`${t('rating', 'Rating')}: ${value}/10 (${payload.count} ${t('feedbacks', 'feedbacks')})`, name]} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
         <div className="last-updated">
-          Updated: {new Date().toLocaleTimeString()} (refreshes every 5 minutes)
+          {t('updated', 'Updated')}: {new Date().toLocaleTimeString()} ({t('refreshInterval', 'refreshes every 5 minutes')})
         </div>
       </div>
       
@@ -377,13 +418,13 @@ const AnalyticsPage = () => {
 
   return (
     <div className="analytics-page">
-      <h1>{t('feedbackAnalytics', 'Feedback Analytics')}</h1>
+      <h1>{t('feedbackAnalytics', 'अभिप्राय विश्लेषण')}</h1>
 
       <div className="analytics-content">
         {loading ? (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>{t('loadingAnalyticsData', 'Loading analytics data...')}</p>
+            <p>{t('loadingAnalyticsData', 'विश्लेषण डेटा लोड होत आहे...')}</p>
           </div>
         ) : error ? (
           <div className="error-container">
@@ -392,7 +433,7 @@ const AnalyticsPage = () => {
               className="retry-button" 
               onClick={fetchAnalyticsData}
             >
-              {t('retry', 'Try Again')}
+              {t('retry', 'पुन्हा प्रयत्न करा')}
             </button>
           </div>
         ) : (

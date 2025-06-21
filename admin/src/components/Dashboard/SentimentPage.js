@@ -24,6 +24,8 @@ const COLORS = {
 // Department list for categorization (English names)
 const departments = ['Traffic', 'Women Safety', 'Narcotic Drugs', 'Cyber Crime'];
 
+// We'll define the translation function inside the component
+
 // Department name mappings between languages
 const departmentNameMappings = {
   // English department names with multi-language variations
@@ -72,6 +74,31 @@ const SentimentPage = () => {
   const [sentiment, setSentiment] = useState(null);
   const [feedbackData, setFeedbackData] = useState([]);
   
+  // Function to translate department name based on current language
+  const getTranslatedDepartmentName = (englishDeptName) => {
+    // Use the key convention (lowercase, no spaces) for department names
+    // Map department names to their correct translation keys
+    let translationKey;
+    switch(englishDeptName) {
+      case 'Traffic':
+        translationKey = 'traffic';
+        break;
+      case 'Women Safety':
+        translationKey = 'womenSafety';
+        break;
+      case 'Narcotic Drugs':
+        translationKey = 'narcoticDrugs';
+        break;
+      case 'Cyber Crime':
+        translationKey = 'cyberCrime';
+        break;
+      default:
+        translationKey = englishDeptName?.toLowerCase().replace(/ /g, '');
+    }
+    
+    return t(translationKey, englishDeptName); // Fallback to English if translation missing
+  };
+  
   // Function to categorize ratings into sentiment categories
   const categorizeSentiment = (rating) => {
     const numRating = Number(rating) || 0;
@@ -81,10 +108,23 @@ const SentimentPage = () => {
     return 'neutral'; // Default if invalid rating
   };
 
+  // Function to get translated sentiment label
+  const getTranslatedSentiment = (sentimentKey) => {
+    // Use translations with fallbacks
+    return t(sentimentKey, sentimentKey === 'positive' ? 'Positive' : 
+                         sentimentKey === 'neutral' ? 'Neutral' : 
+                         sentimentKey === 'negative' ? 'Negative' : sentimentKey);
+  };
+
   useEffect(() => {
     // Reset loading state when language changes or on component mount
     setLoading(true);
     setError(null);
+    
+    // Force reprocessing of the data when language changes to update translated elements
+    if (feedbackData.length > 0) {
+      processFeedbackData(feedbackData);
+    }
     
     // Fetch feedback data from API
     const fetchFeedbackData = async () => {
@@ -214,10 +254,14 @@ const SentimentPage = () => {
     const sentimentByCategory = departmentData.map(dept => {
       const deptTotal = dept.total || 1; // Avoid division by zero
       return {
-        name: dept.name,
+        name: getTranslatedDepartmentName(dept.name),
         positive: Math.round((dept.positive / deptTotal) * 100),
         neutral: Math.round((dept.neutral / deptTotal) * 100),
-        negative: Math.round((dept.negative / deptTotal) * 100)
+        negative: Math.round((dept.negative / deptTotal) * 100),
+        originalName: dept.name, // Keep original name for reference
+        positiveName: getTranslatedSentiment('positive'),
+        neutralName: getTranslatedSentiment('neutral'),
+        negativeName: getTranslatedSentiment('negative')
       };
     });
     
@@ -257,9 +301,9 @@ const SentimentPage = () => {
     if (!sentiment || !sentiment.sentimentAnalysis) return null;
     
     const data = [
-      { name: t('positive'), value: sentiment?.sentimentAnalysis.positive, color: COLORS.positive },
-      { name: t('neutral'), value: sentiment?.sentimentAnalysis.neutral, color: COLORS.neutral },
-      { name: t('negative'), value: sentiment?.sentimentAnalysis.negative, color: COLORS.negative }
+      { name: t('positive', 'Positive'), value: sentiment?.sentimentAnalysis.positive, color: COLORS.positive },
+      { name: t('neutral', 'Neutral'), value: sentiment?.sentimentAnalysis.neutral, color: COLORS.neutral },
+      { name: t('negative', 'Negative'), value: sentiment?.sentimentAnalysis.negative, color: COLORS.negative }
     ];
     
     // Determine if we're on a small screen using window width
@@ -268,7 +312,7 @@ const SentimentPage = () => {
 
     return (
       <div className="dashboard-card sentiment-distribution">
-        <h3>{t('overallSentimentDistribution')}</h3>
+        <h3>{t('overallSentimentDistribution', 'Overall Sentiment Distribution')}</h3>
 
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
@@ -323,7 +367,7 @@ const SentimentPage = () => {
               borderRadius: '50%',
               marginRight: '8px'
             }}></div>
-            <span><strong>{t('positive')}:</strong> {sentiment?.sentimentAnalysis.positive}%</span>
+            <span><strong>{t('positive', 'Positive')}:</strong> {sentiment?.sentimentAnalysis.positive}%</span>
           </div>
           <div className="sentiment-stat-item" style={{ 
             display: 'flex', 
@@ -337,7 +381,7 @@ const SentimentPage = () => {
               borderRadius: '50%',
               marginRight: '8px'
             }}></div>
-            <span><strong>{t('neutral')}:</strong> {sentiment?.sentimentAnalysis.neutral}%</span>
+            <span><strong>{t('neutral', 'Neutral')}:</strong> {sentiment?.sentimentAnalysis.neutral}%</span>
           </div>
           <div className="sentiment-stat-item" style={{ 
             display: 'flex', 
@@ -350,7 +394,7 @@ const SentimentPage = () => {
               borderRadius: '50%',
               marginRight: '8px'
             }}></div>
-            <span><strong>{t('negative')}:</strong> {sentiment?.sentimentAnalysis.negative}%</span>
+            <span><strong>{t('negative', 'Negative')}:</strong> {sentiment?.sentimentAnalysis.negative}%</span>
           </div>
         </div>
       </div>
@@ -358,6 +402,54 @@ const SentimentPage = () => {
   };
 
 
+  // Custom tick renderer for translating department names in X axis
+  const renderCustomizedTickX = (props) => {
+    const { x, y, payload } = props;
+    // Translate department name based on the value
+    let displayText = payload.value;
+    
+    // Always attempt to translate department names
+    // We need to force translation for each known department
+    if (displayText === 'Traffic') {
+      displayText = t('traffic', 'Traffic');
+    } else if (displayText === 'Women Safety') {
+      displayText = t('womenSafety', 'Women Safety');
+    } else if (displayText === 'Narcotic Drugs') {
+      displayText = t('narcoticDrugs', 'Narcotic Drugs');
+    } else if (displayText === 'Cyber Crime') {
+      displayText = t('cyberCrime', 'Cyber Crime');
+    } else if (departments.includes(displayText)) {
+      // Fallback for any other department names
+      displayText = getTranslatedDepartmentName(displayText);
+    }
+    
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text 
+          x={0} 
+          y={0} 
+          dy={16} 
+          textAnchor="middle"
+          fontSize={12}
+          fill="#666"
+        >
+          {displayText}
+        </text>
+      </g>
+    );
+  };
+  
+  // Tooltip formatter to show translated sentiment names
+  const customTooltipFormatter = (value, name, props) => {
+    // Map sentiment keys to translated terms
+    let translatedName = name;
+    if (name === 'positive') translatedName = t('positive', 'Positive');
+    if (name === 'neutral') translatedName = t('neutral', 'Neutral');
+    if (name === 'negative') translatedName = t('negative', 'Negative');
+    
+    return [`${value}%`, translatedName];
+  };
+  
   const renderCategorySentiment = () => {
     // Determine if we're on a small screen
     const isMobile = window.innerWidth < 576;
@@ -367,7 +459,7 @@ const SentimentPage = () => {
       <div className="dashboard-card category-sentiment">
         {/* Title positioned completely outside the chart with increased margin */}
         <h3 style={{ width: '100%', textAlign: 'center', marginBottom: '80px', marginTop: '-30px', position: 'relative', zIndex: 5 }}>
-          {t('sentimentAnalysisByCategory')}
+          {t('sentimentAnalysisByCategory', 'Sentiment Analysis by Category')}
         </h3>
         <div className="chart-container" style={{ position: 'relative', paddingTop: '10px', marginTop: '5px' }}>
           <ResponsiveContainer width="100%" height={isMobile ? 380 : 380}>
@@ -384,7 +476,7 @@ const SentimentPage = () => {
               {!isMobile ? (
                 <XAxis 
                   dataKey="name" 
-                  tick={{ fontSize: isMobile ? 10 : 12 }} 
+                  tick={renderCustomizedTickX} 
                   height={60} 
                   tickMargin={5} 
                   interval={0} 
@@ -403,22 +495,28 @@ const SentimentPage = () => {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={100} 
-                  tick={{ fontSize: 12, fontWeight: 'bold' }}
+                  width={140} 
+                  tick={renderCustomizedTickX} 
                   axisLine={{ stroke: '#ccc' }}
                 />
               )}
-              <Tooltip formatter={(value) => `${value}%`} />
+              <Tooltip formatter={customTooltipFormatter} />
               <Legend 
                 wrapperStyle={{ paddingTop: '10px', fontSize: isMobile ? '12px' : '14px' }} 
                 iconSize={isMobile ? 10 : 10}
                 layout="horizontal"
                 verticalAlign="bottom"
                 align="center"
+                formatter={(value) => {
+                  if (value === 'positive') return t('positive', 'Positive');
+                  if (value === 'neutral') return t('neutral', 'Neutral');
+                  if (value === 'negative') return t('negative', 'Negative');
+                  return value;
+                }}
               />
-              <Bar dataKey="positive" name={t('positive')} fill="#4CAF50" barSize={isMobile ? 20 : 20} />
-              <Bar dataKey="neutral" name={t('neutral')} fill="#FF9800" barSize={isMobile ? 20 : 20} />
-              <Bar dataKey="negative" name={t('negative')} fill="#F44336" barSize={isMobile ? 20 : 20} />
+              <Bar dataKey="positive" name="positive" fill="#4CAF50" barSize={isMobile ? 20 : 20} />
+              <Bar dataKey="neutral" name="neutral" fill="#FF9800" barSize={isMobile ? 20 : 20} />
+              <Bar dataKey="negative" name="negative" fill="#F44336" barSize={isMobile ? 20 : 20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
