@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const translations = {
   en: {
+    slogan: "Your Opinion Counts – Strengthening Ahilyanagar Police Services!",
     title: "Feedback",
     fullName: "Full Name",
     phone: "Phone Number",
@@ -21,7 +22,7 @@ const translations = {
     remove: "Remove",
     success: "Feedback submitted successfully.",
     error: "There was an issue submitting your feedback. Please try again later.",
-    descriptionNote: "Write what you feel (max 50 words)",
+    descriptionNote: "Express your opinionGIR (max 50 words)",
     departmentList: ["Traffic", "Women Safety", "Narcotic Drugs", "Cyber Crime"],
     departmentRatingsHeading: "Department Ratings",
     rating: "Rating",
@@ -31,6 +32,7 @@ const translations = {
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
   },
   mr: {
+    slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
     title: "अभिप्राय",
     fullName: "पूर्ण नाव",
     phone: "फोन नंबर",
@@ -47,7 +49,7 @@ const translations = {
     remove: "काढा",
     success: "अभिप्राय यशस्वीरित्या पाठवला गेला.",
     error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
-    descriptionNote: "तुम्हाला जे वाटतं ते लिहा (कमाल ५० शब्दांची सीमा)",
+    descriptionNote: "आपली प्रतिक्रिया व्यक्त करा (कमाल ५० शब्दांची सीमा)",
     departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ", "सायबर गुन्हे"],
     departmentRatingsHeading: "विभागानुसार रेटिंग",
     rating: "रेटिंग",
@@ -307,6 +309,10 @@ const FeedbackForm = () => {
           <option value="mr">मराठी</option>
           <option value="en">English</option>
         </select>
+      </div>
+
+      <div className="text-center mb-4 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
+        <h3 className="fw-bold" style={{ color: "#0A2362" }}>{t.slogan}</h3>
       </div>
 
       <h1 className="fw-bold text-center mb-4" style={{ color: "#0A2362" }}>
