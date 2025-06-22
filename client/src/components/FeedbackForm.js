@@ -16,13 +16,13 @@ const translations = {
     submit: "Submit",
     namePlaceholder: "Your Name",
     phonePlaceholder: "Your Phone Number",
-    descriptionPlaceholder: "Enter Description",
+    descriptionPlaceholder: "Enter your feedback",
     selectDepartment: "Department",
     add: "Add",
     remove: "Remove",
     success: "Feedback submitted successfully.",
     error: "There was an issue submitting your feedback. Please try again later.",
-    descriptionNote: "Express your opinionGIR (max 50 words)",
+    descriptionNote: "Express your opinion (max 50 words)",
     departmentList: ["Traffic", "Women Safety", "Narcotic Drugs", "Cyber Crime"],
     departmentRatingsHeading: "Department Ratings",
     rating: "Rating",
@@ -30,6 +30,7 @@ const translations = {
     invalidPhone: "Please enter a valid 10-digit phone number.",
     fileSizeError: "File size must be less than 10MB",
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
+    descriptionRequired: "Please enter your feedback."
   },
   mr: {
     slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
@@ -43,7 +44,7 @@ const translations = {
     submit: "पाठवा",
     namePlaceholder: "तुमचं नाव",
     phonePlaceholder: "तुमचा फोन नंबर",
-    descriptionPlaceholder: "माहिती लिहा",
+    descriptionPlaceholder: "अभिप्राय नोंदवा",
     selectDepartment: "विभाग",
     add: "जोडा",
     remove: "काढा",
@@ -57,7 +58,8 @@ const translations = {
     invalidPhone: "कृपया १० अंकी फोन नंबर टाका.",
     fileSizeError: "फाईलचा आकार १०MB पेक्षा कमी असणे आवश्यक आहे",
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
-  },
+    descriptionRequired: "कृपया अभिप्राय नोंदवा."
+  }
 };
 
 const FeedbackForm = () => {
@@ -89,22 +91,12 @@ const FeedbackForm = () => {
 
   // Initialize range inputs and add event listeners
   useEffect(() => {
-    // Initialize all range inputs
     const rangeInputs = document.querySelectorAll('input[type="range"]');
-    
-    // Add input and change event listeners to each range input
     rangeInputs.forEach(input => {
-      // Initialize the progress
       updateRangeProgress(input);
-      
-      // Add input event for real-time updates during sliding
       input.addEventListener('input', () => updateRangeProgress(input));
-      
-      // Add change event for when the user stops sliding
       input.addEventListener('change', () => updateRangeProgress(input));
     });
-    
-    // Cleanup event listeners on component unmount
     return () => {
       rangeInputs.forEach(input => {
         input.removeEventListener('input', () => updateRangeProgress(input));
@@ -126,7 +118,6 @@ const FeedbackForm = () => {
     setSelectedFileName("");
   }, [language]);
 
-  // Update slider progress when overallRating changes
   useEffect(() => {
     const overallRatingInput = document.querySelector('input[name="overallRating"]');
     if (overallRatingInput) {
@@ -134,7 +125,6 @@ const FeedbackForm = () => {
     }
   }, [formData.overallRating]);
 
-  // Update slider progress when departmentRating changes
   useEffect(() => {
     const departmentRatingInput = document.querySelector('.department-rating-slider');
     if (departmentRatingInput) {
@@ -142,15 +132,9 @@ const FeedbackForm = () => {
     }
   }, [departmentRating]);
 
-  // Reset file name when language changes
-  useEffect(() => {
-    setSelectedFileName("");
-  }, [language]);
-
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    
-    // Update visual progress if this is a range input
+
     if (e.target.type === "range") {
       updateRangeProgress(e.target);
     }
@@ -193,13 +177,23 @@ const FeedbackForm = () => {
 
     if (isSubmitting) return;
 
-    if (!/^\d{10}$/.test(formData.phone)) {
+    // Check if description is empty
+    if (!formData.description.trim()) {
+      toast.error(t.descriptionRequired, {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      return; // Prevent form submission if description is empty
+    }
+
+    if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
       toast.error(t.invalidPhone, {
         position: "top-center",
         autoClose: 5000,
         theme: "colored",
       });
-      return;
+      return; // Prevent form submission if phone is invalid
     }
 
     setIsSubmitting(true);
@@ -241,6 +235,7 @@ const FeedbackForm = () => {
       });
       setDepartmentRatings([]);
       if (fileInputRef.current) fileInputRef.current.value = null;
+      setSelectedFileName("");
 
     } catch (err) {
       const endTime = Date.now();
@@ -282,8 +277,7 @@ const FeedbackForm = () => {
     ]);
     setSelectedDepartment("");
     setDepartmentRating(5);
-    
-    // Update the progress bar for the department rating slider after state update
+
     setTimeout(() => {
       const departmentRatingInput = document.querySelector('.department-rating-slider');
       if (departmentRatingInput) {
@@ -327,28 +321,26 @@ const FeedbackForm = () => {
         <div className="row mb-4">
           <div className="col-md-6">
             <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-              {t.fullName} <span style={{ color: "red" }}>*</span>
+              {t.fullName}
             </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
               className="form-control"
               placeholder={t.namePlaceholder}
             />
           </div>
           <div className="col-md-6">
             <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-              {t.phone} <span style={{ color: "red" }}>*</span>
+              {t.phone}
             </label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              required
               className="form-control"
               placeholder={t.phonePlaceholder}
               maxLength={10}
@@ -359,7 +351,7 @@ const FeedbackForm = () => {
 
         <div className="mb-4">
           <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {t.description}
+            {t.description} <span style={{ color: "red" }}>*</span>
           </label>
           <div className="form-text mb-2" style={{ color: "#757575" }}>
             {t.descriptionNote}
