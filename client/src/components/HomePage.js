@@ -7,8 +7,7 @@ const HomePage = () => {
 
   const baseUrl = window.location.origin;
   const formUrl = `${baseUrl}/feedback`;
-
-  // const formUrl = 'http://192.168.0.121:3000/feedback'; // LOCAL URL for mobile testing
+// const formUrl = 'http://192.168.0.121:3000/feedback'; // LOCAL URL for mobile testing
 
   return (
     <div className="container py-5">

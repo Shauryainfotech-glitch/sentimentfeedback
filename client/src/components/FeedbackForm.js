@@ -73,6 +73,43 @@ const FeedbackForm = () => {
   const [departmentRating, setDepartmentRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
+  const [selectedFileName, setSelectedFileName] = useState("");
+
+  // Function to update the visual progress bar of range inputs
+  const updateRangeProgress = (rangeInput) => {
+    if (!rangeInput) return;
+    const value = rangeInput.value;
+    const max = rangeInput.max || 10;
+    const min = rangeInput.min || 1;
+    const percentage = ((value - min) / (max - min)) * 100;
+    rangeInput.style.backgroundSize = `${percentage}% 100%`;
+  };
+
+  // Initialize range inputs and add event listeners
+  useEffect(() => {
+    // Initialize all range inputs
+    const rangeInputs = document.querySelectorAll('input[type="range"]');
+    
+    // Add input and change event listeners to each range input
+    rangeInputs.forEach(input => {
+      // Initialize the progress
+      updateRangeProgress(input);
+      
+      // Add input event for real-time updates during sliding
+      input.addEventListener('input', () => updateRangeProgress(input));
+      
+      // Add change event for when the user stops sliding
+      input.addEventListener('change', () => updateRangeProgress(input));
+    });
+    
+    // Cleanup event listeners on component unmount
+    return () => {
+      rangeInputs.forEach(input => {
+        input.removeEventListener('input', () => updateRangeProgress(input));
+        input.removeEventListener('change', () => updateRangeProgress(input));
+      });
+    };
+  }, []);
 
   useEffect(() => {
     setFormData({
@@ -84,10 +121,37 @@ const FeedbackForm = () => {
     });
     setDepartmentRatings([]);
     if (fileInputRef.current) fileInputRef.current.value = null;
+    setSelectedFileName("");
+  }, [language]);
+
+  // Update slider progress when overallRating changes
+  useEffect(() => {
+    const overallRatingInput = document.querySelector('input[name="overallRating"]');
+    if (overallRatingInput) {
+      updateRangeProgress(overallRatingInput);
+    }
+  }, [formData.overallRating]);
+
+  // Update slider progress when departmentRating changes
+  useEffect(() => {
+    const departmentRatingInput = document.querySelector('.department-rating-slider');
+    if (departmentRatingInput) {
+      updateRangeProgress(departmentRatingInput);
+    }
+  }, [departmentRating]);
+
+  // Reset file name when language changes
+  useEffect(() => {
+    setSelectedFileName("");
   }, [language]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+    
+    // Update visual progress if this is a range input
+    if (e.target.type === "range") {
+      updateRangeProgress(e.target);
+    }
 
     if (name === "phone") {
       const numeric = value.replace(/\D/g, "");
@@ -103,6 +167,7 @@ const FeedbackForm = () => {
       if (!file.type.startsWith("image/")) {
         toast.error(t.fileTypeError, { position: "top-center", autoClose: 5000, theme: "colored" });
         e.target.value = null;
+        setSelectedFileName("");
         return;
       }
 
@@ -110,9 +175,11 @@ const FeedbackForm = () => {
       if (file.size > maxSize) {
         toast.error(t.fileSizeError, { position: "top-center", autoClose: 5000, theme: "colored" });
         e.target.value = null;
+        setSelectedFileName("");
         return;
       }
 
+      setSelectedFileName(file.name);
       setFormData((prev) => ({ ...prev, image: file }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: files ? files[0] : value }));
@@ -213,6 +280,14 @@ const FeedbackForm = () => {
     ]);
     setSelectedDepartment("");
     setDepartmentRating(5);
+    
+    // Update the progress bar for the department rating slider after state update
+    setTimeout(() => {
+      const departmentRatingInput = document.querySelector('.department-rating-slider');
+      if (departmentRatingInput) {
+        updateRangeProgress(departmentRatingInput);
+      }
+    }, 0);
   };
 
   const removeDepartmentRating = (department) => {
@@ -301,14 +376,52 @@ const FeedbackForm = () => {
           <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
             {t.image}
           </label>
-          <input
-            type="file"
-            name="image"
-            className="form-control"
-            onChange={handleChange}
-            accept="image/*"
-            ref={fileInputRef}
-          />
+          <div className="custom-file-upload">
+            <div className="d-flex">
+              <label
+                htmlFor="imageUpload"
+                className="custom-file-button"
+                style={{
+                  backgroundColor: "#0A2362",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px 0 0 5px",
+                  cursor: "pointer",
+                  display: "inline-block",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {language === "mr" ? "फाईल निवडा" : "Upload a Photo"}
+              </label>
+              <div
+                className="custom-file-name"
+                style={{
+                  border: "1px solid #ced4da",
+                  borderLeft: "none",
+                  padding: "10px 15px",
+                  borderRadius: "0 5px 5px 0",
+                  backgroundColor: "white",
+                  flexGrow: 1,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {selectedFileName || (language === "mr" ? "फाईल निवडलेली नाही" : "No file chosen")}
+              </div>
+            </div>
+            <input
+              type="file"
+              id="imageUpload"
+              name="image"
+              className="d-none"
+              onChange={handleChange}
+              accept="image/*"
+              ref={fileInputRef}
+            />
+          </div>
         </div>
 
         <div className="mb-4">
@@ -353,7 +466,7 @@ const FeedbackForm = () => {
                 max="10"
                 value={departmentRating}
                 onChange={(e) => setDepartmentRating(e.target.value)}
-                className="form-range"
+                className="form-range department-rating-slider"
               />
               <div className="range-value">{departmentRating} / 10</div>
             </div>
