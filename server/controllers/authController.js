@@ -1,15 +1,14 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const User = require('../models/User');
-const { 
-  getPasswordResetOTPTemplate, 
-  getWelcomeEmailTemplate, 
-  getPasswordChangedTemplate 
+// controllers/authController.js
+const bcrypt      = require('bcryptjs');
+const jwt         = require('jsonwebtoken');
+const nodemailer  = require('nodemailer');
+const User        = require('../models/User');
+const {
+  getPasswordResetOTPTemplate,
+  getWelcomeEmailTemplate,
+  getPasswordChangedTemplate
 } = require('../utils/emailTemplates');
 
-// Nodemailer Transporter Setup
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -18,165 +17,191 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Register function
 const register = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
   try {
-    const existing = await User.findOne({ where: { email } });
-    if (existing) {
+    const exists = await User.findOne({ where: { email } });
+    if (exists) {
       return res.status(400).json({ error: 'Email already registered' });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashedPassword });
-    
-    // Send welcome email
-    const welcomeEmail = getWelcomeEmailTemplate(email);
+
+    const { subject, html, text } = getWelcomeEmailTemplate(email);
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: welcomeEmail.subject,
-      html: welcomeEmail.html,
-      text: welcomeEmail.text
+      to: email,
+      subject,
+      html,
+      text
     });
-    
-    res.status(201).json({ message: 'User registered successfully', user: { id: user.id, email: user.email } });
+
+    return res.status(201).json({
+      message: 'User registered successfully',
+      user: { id: user.id, email }
+    });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 };
 
-// Login function
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user) {
+    const valid = user && await bcrypt.compare(password, user.password);
+    if (!valid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-    // Generate JWT token
+
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
-    res.json({ message: 'Login successful', token, user: { id: user.id, email: user.email } });
+
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user.id, email }
+    });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 };
 
-// Forgot password function
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    user.otp = otp;
-    user.otpExpiration = otpExpiration;
-    await user.save();
-    
-    // Send OTP via email using template
-    const otpEmail = getPasswordResetOTPTemplate(otp);
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: otpEmail.subject,
-      html: otpEmail.html,
-      text: otpEmail.text
-    });
-    
-    res.json({ message: 'OTP sent to your email' });
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({ error: 'Server error' });
+  if (!email) {
+    return res.status(400).json({ error: 'Email required' });
   }
-};
 
-// Verify OTP function
-const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
+  let user;
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user || user.otp !== otp || !user.otpExpiration || new Date() > user.otpExpiration) {
-      return res.status(400).json({ error: 'Invalid or expired OTP' });
-    }
-    
-    // Clear OTP after successful verification (but keep expiration for reference)
-    user.otp = null;
-    await user.save();
-    
-    res.json({ message: 'OTP verified successfully' });
-  } catch (error) {
-    console.error('Verify OTP error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
-
-// Reset password function
-const resetPassword = async (req, res) => {
-  const { email, newPassword, confirmPassword } = req.body;
-  try {
-    // Validate that passwords match
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
-    }
-
-    // Validate password length (optional - you can adjust this)
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
-    }
-
-    const user = await User.findOne({ where: { email } });
+    user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if OTP was verified (OTP should be null after verification)
-    if (user.otp !== null) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    user.otpHash = otpHash;
+    user.otpExpiration = otpExpiration;
+    await user.save();
+
+    const { subject, html, text } = getPasswordResetOTPTemplate(otp);
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to:   email,
+      subject,
+      html,
+      text
+    });
+
+    return res.json({ message: 'OTP sent to your email' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    if (user) {
+      user.otpHash = null;
+      user.otpExpiration = null;
+      await user.save().catch(() => {});
+    }
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Email and OTP required' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    const now = new Date();
+    const validOtp = user &&
+      user.otpHash &&
+      user.otpExpiration &&
+      now <= user.otpExpiration &&
+      await bcrypt.compare(otp, user.otpHash);
+
+    if (!validOtp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    user.otpHash = null;
+    user.otpExpiration = null;
+    await user.save();
+
+    return res.json({ message: 'OTP verified successfully' });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { email, newPassword, confirmPassword } = req.body;
+  if (!email || !newPassword || !confirmPassword) {
+    return res.status(400).json({ error: 'Email and new passwords required' });
+  }
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'Password must be ≥ 6 characters' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (user.otpHash !== null || user.otpExpiration !== null) {
       return res.status(400).json({ error: 'Please verify OTP first' });
     }
 
-    // Hash and update password
     user.password = await bcrypt.hash(newPassword, 10);
-    user.otp = null;
-    user.otpExpiration = null;
     await user.save();
-    
-    // Send password changed confirmation email
-    const passwordChangedEmail = getPasswordChangedTemplate();
+
+    const { subject, html, text } = getPasswordChangedTemplate();
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: passwordChangedEmail.subject,
-      html: passwordChangedEmail.html,
-      text: passwordChangedEmail.text
+      to:   email,
+      subject,
+      html,
+      text
     });
-    
-    res.json({ message: 'Password reset successful' });
+
+    return res.json({ message: 'Password reset successful' });
   } catch (error) {
     console.error('Reset password error:', error);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 };
 
-// Logout function (optional - for token invalidation)
-const logout = async (req, res) => {
-  try {
-    // In a more advanced implementation, you could add the token to a blacklist
-    // For now, we'll just return success since JWT tokens are stateless
-    res.json({ message: 'Logout successful' });
-  } catch (error) {
-    console.error('Logout error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
+const logout = (req, res) => {
+  return res.json({ message: 'Logout successful' });
 };
 
-module.exports = { register, login, forgotPassword, verifyOtp, resetPassword, logout };
+module.exports = {
+  register,
+  login,
+  forgotPassword,
+  verifyOtp,
+  resetPassword,
+  logout
+};
