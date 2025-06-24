@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const translations = {
   en: {
-    slogan: "Your Opinion Counts – Strengthening Ahilyanagar Police Services!",
+    slogan: "Your Opinion Counts – Improving Ahilyanagar Police Services!",
     title: "Feedback",
     fullName: "Full Name",
     phone: "Phone Number",
-    description: "Description",
+    description: "Opinion",
     image: "Upload Image (Optional)",
     overallRating: "Overall Rating (1-10)",
     departmentRating: "Add Department-wise Rating (Optional)",
@@ -37,7 +37,7 @@ const translations = {
     title: "अभिप्राय",
     fullName: "पूर्ण नाव",
     phone: "फोन नंबर",
-    description: "माहिती",
+    description: "अभिप्राय",
     image: "छायाचित्र अपलोड करा (पर्यायी)",
     overallRating: "एकूण रेटिंग (1-10)",
     departmentRating: "विभागानुसार रेटिंग (पर्यायी)",
@@ -50,8 +50,8 @@ const translations = {
     remove: "काढा",
     success: "अभिप्राय यशस्वीरित्या पाठवला गेला.",
     error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
-    descriptionNote: "आपली प्रतिक्रिया व्यक्त करा (कमाल ५० शब्दांची सीमा)",
-    departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ", "सायबर गुन्हे"],
+    descriptionNote: "आपली प्रतिक्रिया व्यक्त करा (कमाल ५० शब्दांची मर्यादा )",
+    departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ विरुद्ध कारवाई", "सायबर गुन्हे"],
     departmentRatingsHeading: "विभागानुसार रेटिंग",
     rating: "रेटिंग",
     alreadyRated: "विभाग आधीच निवडलेला आहे",
@@ -62,6 +62,41 @@ const translations = {
   }
 };
 
+const policeStations = [
+  { en: "Akole", mr: "अकोले" },
+  { en: "Ashwi", mr: "अश्वी" },
+  { en: "Belavandi", mr: "बेलवंडी" },
+  { en: "Bhingar Camp", mr: "भिंगार कॅम्प" },
+  { en: "Ghargaon", mr: "घरगाव" },
+  { en: "Jamkhed", mr: "जामखेड" },
+  { en: "Karjat", mr: "कर्जत" },
+  { en: "Kharda", mr: "खरडा" },
+  { en: "Kopargaon City", mr: "कोपरगाव शहर" },
+  { en: "Kopargaon Rural", mr: "कोपरगाव ग्रामीण" },
+  { en: "Kotwali", mr: "कोतवाली" },
+  { en: "Loni", mr: "लोणी" },
+  { en: "MIDC", mr: "MIDC" },
+  { en: "Mirajgaon", mr: "मिरजगाव" },
+  { en: "Nagar Taluka", mr: "नगर तालुका" },
+  { en: "Newasa", mr: "नेवासा" },
+  { en: "Parner", mr: "पारनेर" },
+  { en: "Pathardi", mr: "पाथर्डी" },
+  { en: "Rahata", mr: "राहाता" },
+  { en: "Rahuri", mr: "राहुरी" },
+  { en: "Rajur", mr: "राजूर" },
+  { en: "Sangamner City", mr: "संगमनेर शहर" },
+  { en: "Sangamner Rural", mr: "संगमनेर ग्रामीण" },
+  { en: "Shani Shingnapur", mr: "शनि शिंगणापूर" },
+  { en: "Shevgaon", mr: "शेवगाव" },
+  { en: "Shirdi", mr: "शिर्डी" },
+  { en: "Shrigonda", mr: "श्रीगोंदा" },
+  { en: "Shrirampur City", mr: "श्रीरामपूर शहर" },
+  { en: "Shrirampur Rural", mr: "श्रीरामपूर ग्रामीण" },
+  { en: "Sonai", mr: "सोनई" },
+  { en: "Supa", mr: "सुपा" },
+  { en: "Tofkhana", mr: "तोफखाना" }
+];
+
 const FeedbackForm = () => {
   const [language, setLanguage] = useState("mr");
   const t = translations[language];
@@ -70,14 +105,12 @@ const FeedbackForm = () => {
     phone: "",
     description: "",
     overallRating: 2,
-    image: null,
   });
   const [departmentRatings, setDepartmentRatings] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [departmentRating, setDepartmentRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef();
-  const [selectedFileName, setSelectedFileName] = useState("");
+  const [selectedPoliceStation, setSelectedPoliceStation] = useState("");
 
   // Function to update the visual progress bar of range inputs
   const updateRangeProgress = (rangeInput) => {
@@ -111,11 +144,8 @@ const FeedbackForm = () => {
       phone: "",
       description: "",
       overallRating: 2,
-      image: null,
     });
     setDepartmentRatings([]);
-    if (fileInputRef.current) fileInputRef.current.value = null;
-    setSelectedFileName("");
   }, [language]);
 
   useEffect(() => {
@@ -133,7 +163,7 @@ const FeedbackForm = () => {
   }, [departmentRating]);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
 
     if (e.target.type === "range") {
       updateRangeProgress(e.target);
@@ -147,28 +177,11 @@ const FeedbackForm = () => {
       if (words.length <= 50) {
         setFormData((prev) => ({ ...prev, description: value }));
       }
-    } else if (name === "image" && files && files[0]) {
-      const file = files[0];
-
-      if (!file.type.startsWith("image/")) {
-        toast.error(t.fileTypeError, { position: "top-center", autoClose: 5000, theme: "colored" });
-        e.target.value = null;
-        setSelectedFileName("");
-        return;
-      }
-
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast.error(t.fileSizeError, { position: "top-center", autoClose: 5000, theme: "colored" });
-        e.target.value = null;
-        setSelectedFileName("");
-        return;
-      }
-
-      setSelectedFileName(file.name);
-      setFormData((prev) => ({ ...prev, image: file }));
+    } else if (name === "policeStation") {
+      setSelectedPoliceStation(value);
+      return;
     } else {
-      setFormData((prev) => ({ ...prev, [name]: files ? files[0] : value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -196,23 +209,29 @@ const FeedbackForm = () => {
       return; // Prevent form submission if phone is invalid
     }
 
+    if (!selectedPoliceStation) {
+      toast.error("Please select a police station.", {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const startTime = Date.now();
 
     try {
-      const form = new FormData();
-      Object.entries(formData).forEach(([key, val]) => {
-        if (val !== null) form.append(key, val);
-      });
-      form.append("departmentRatings", JSON.stringify(departmentRatings));
-
+      const payload = {
+        ...formData,
+        departmentRatings,
+        policeStation: selectedPoliceStation,
+      };
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/feedback`,
-        form,
+        payload,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
 
@@ -231,11 +250,9 @@ const FeedbackForm = () => {
         phone: "",
         description: "",
         overallRating: 2,
-        image: null,
       });
       setDepartmentRatings([]);
-      if (fileInputRef.current) fileInputRef.current.value = null;
-      setSelectedFileName("");
+      setSelectedPoliceStation("");
 
     } catch (err) {
       const endTime = Date.now();
@@ -348,6 +365,25 @@ const FeedbackForm = () => {
             />
           </div>
         </div>
+        <div className="mb-4">
+          <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
+            {language === "mr" ? "तुमची पोलीस स्टेशन हद्द निवडा" : "Select your police station Boundary"} <span style={{ color: "red" }}>*</span>
+          </label>
+          <select
+            className="form-select"
+            name="policeStation"
+            value={selectedPoliceStation}
+            onChange={handleChange}
+            required
+          >
+            <option value="">{language === "mr" ? "पोलीस स्टेशन निवडा" : "Select Police Station"}</option>
+            {policeStations.map((station, i) => (
+              <option key={i} value={station.en}>
+                {language === "mr" ? station.mr : station.en}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="mb-4">
           <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
@@ -367,58 +403,6 @@ const FeedbackForm = () => {
           <div className="form-text text-end text-muted mt-1">
             {formData.description.trim().split(/\s+/).filter(Boolean).length} / 50{" "}
             {language === "mr" ? "शब्द" : "words"}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {t.image}
-          </label>
-          <div className="custom-file-upload">
-            <div className="d-flex">
-              <label
-                htmlFor="imageUpload"
-                className="custom-file-button"
-                style={{
-                  backgroundColor: "#0A2362",
-                  color: "white",
-                  padding: "10px 20px",
-                  borderRadius: "5px 0 0 5px",
-                  cursor: "pointer",
-                  display: "inline-block",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {language === "mr" ? "फाईल निवडा" : "Upload a Photo"}
-              </label>
-              <div
-                className="custom-file-name"
-                style={{
-                  border: "1px solid #ced4da",
-                  borderLeft: "none",
-                  padding: "10px 15px",
-                  borderRadius: "0 5px 5px 0",
-                  backgroundColor: "white",
-                  flexGrow: 1,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {selectedFileName || (language === "mr" ? "फाईल निवडलेली नाही" : "No file chosen")}
-              </div>
-            </div>
-            <input
-              type="file"
-              id="imageUpload"
-              name="image"
-              className="d-none"
-              onChange={handleChange}
-              accept="image/*"
-              ref={fileInputRef}
-            />
           </div>
         </div>
 

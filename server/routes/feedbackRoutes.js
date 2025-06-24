@@ -5,10 +5,10 @@ const feedbackController = require("../controllers/feedbackController");
 const { authenticateToken } = require("../middleware/auth");
 
 // Destructure and make sure both upload and submitFeedback are correctly imported
-const { upload, submitFeedback } = feedbackController;
+const { submitFeedback } = feedbackController;
 
 // POST route for submitting feedback, with multer image upload
-router.post("/", upload.single("image"), submitFeedback);
+router.post("/", submitFeedback);
 
 // Apply authentication middleware to all feedback routes
 router.use(authenticateToken);

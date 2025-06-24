@@ -1,7 +1,4 @@
 // controllers/feedbackController.js
-const { S3Client } = require('@aws-sdk/client-s3');
-const multerS3 = require('multer-s3');
-const multer = require('multer');
 const dotenv = require('dotenv');
 const Sentiment = require('sentiment');
 const sentiment = new Sentiment();
@@ -9,57 +6,28 @@ dotenv.config(); // Load environment variables from .env
 
 const Feedback = require('../models/Feedback');
 
-// AWS S3 Configuration with SDK v3
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-  },
-});
-
-// Set up multer storage with S3
-const storage = multerS3({
-  s3: s3Client,
-  bucket: process.env.AWS_BUCKET_NAME,
-  contentType: multerS3.AUTO_CONTENT_TYPE,
-  key: (req, file, cb) => {
-    const fileName = `feedbacks/${Date.now()}-${file.originalname}`;
-    cb(null, fileName);
-  },
-});
-
-const upload = multer({ 
-  storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    // Accept only image files
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  }
-});
-
 // Submit Feedback function
 const submitFeedback = async (req, res) => {
   try {
-    const { name, phone, description, overallRating, departmentRatings } = req.body;
+    const { name, phone, description, overallRating, departmentRatings, policeStation } = req.body;
 
     if (!overallRating) return res.status(400).json({ error: 'Overall rating is required.' });
+    if (!policeStation) return res.status(400).json({ error: 'Police station is required.' });
 
-    const imageUrl = req.file ? req.file.location : ''; // Get the image URL from S3
+    let parsedDepartmentRatings = [];
+    if (typeof departmentRatings === 'string') {
+      parsedDepartmentRatings = JSON.parse(departmentRatings || '[]');
+    } else if (Array.isArray(departmentRatings)) {
+      parsedDepartmentRatings = departmentRatings;
+    }
 
     const feedback = await Feedback.create({
       name,
       phone,
       description,
       overallRating,
-      departmentRatings: JSON.parse(departmentRatings || '[]'),
-      imageUrl,
+      departmentRatings: parsedDepartmentRatings,
+      policeStation,
     });
 
     res.status(201).json({ message: 'Feedback submitted successfully.' });
@@ -114,7 +82,6 @@ const deleteFeedbackById = async (req, res) => {
 
 // Export all controller functions
 module.exports = {
-  upload,
   submitFeedback,
   getAllFeedback,
   getFeedbackById,
