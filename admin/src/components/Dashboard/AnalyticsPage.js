@@ -79,6 +79,7 @@ const AnalyticsPage = () => {
   const [improvementData, setImprovementData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('overall'); // 'overall', 'department', 'policeStation'
 
   const fetchAnalyticsData = async () => {
     try {
@@ -246,13 +247,13 @@ const AnalyticsPage = () => {
     // Default data if no feedback is available
     if (!feedbackData || feedbackData.length === 0) {
       setAnalytics({
-        totalFeedback: 0,
         todayFeedback: 0,
+        totalFeedback: 0,
         averageRating: 0,
-        departmentRatings: {},
-        monthlyTrends: getMonthNames(t).map(month => ({ month, count: 0 })),
-        recentFeedback: []
+        monthlyTrends: [],
+        policeStationData: []
       });
+      setLoading(false);
       return;
     }
 
@@ -307,12 +308,54 @@ const AnalyticsPage = () => {
       count: monthCounts[index]
     }));
     
+    // Process police station data
+    const policeStationMap = {};
+    feedbackData.forEach(feedback => {
+      const station = feedback.policeStation;
+      if (station) {
+        if (!policeStationMap[station]) {
+          policeStationMap[station] = {
+            count: 0,
+            totalRating: 0,
+            ratings: []
+          };
+        }
+        policeStationMap[station].count += 1;
+        
+        const rating = Number(feedback.overallRating) || 0;
+        policeStationMap[station].totalRating += rating;
+        policeStationMap[station].ratings.push(rating);
+      }
+    });
+
+    const policeStationData = Object.entries(policeStationMap).map(([station, data]) => ({
+      name: station,
+      count: data.count,
+      averageRating: data.count > 0 ? (data.totalRating / data.count).toFixed(1) : 0,
+      ratings: data.ratings
+    }));
+
+    // Sort by count (most feedback first)
+    const byFeedbackCount = [...policeStationData];
+    byFeedbackCount.sort((a, b) => b.count - a.count);
+    
+    // Sort by rating (highest rated first)
+    const byRating = [...policeStationData];
+    byRating.sort((a, b) => b.averageRating - a.averageRating);
+    
+    // Get top rated stations (stations with at least one feedback)
+    const topRatedStations = byRating.filter(station => station.count > 0).slice(0, 3);
+
     // Set analytics state
     setAnalytics({
       todayFeedback,
       totalFeedback,
       averageRating,
-      monthlyTrends
+      monthlyTrends,
+      policeStationData,
+      totalPoliceStations: Object.keys(policeStationMap).length,
+      topRatedStations: byRating.filter(station => station.count > 0).slice(0, 3),
+      mostFeedbackStations: byFeedbackCount.slice(0, 3)
     });
     
     setLoading(false);
@@ -327,41 +370,43 @@ const AnalyticsPage = () => {
     }, 300000); // Refresh every 5 minutes (300,000 ms)
     
     return () => clearInterval(refreshInterval);
-  }, [currentLanguage]); // Refetch when language changes
+  }, [currentLanguage, t]); // Refetch when language changes or translations change
 
-  const renderOverviewTab = () => (
-    <div className="dashboard-cards">
-      <div className="dashboard-card today-feedback">
-        <div className="card-content">
-          <h3>{t('todaysFeedback', "आजचा अभिप्राय")}</h3>
-          <div className="card-value">{analytics?.todayFeedback || 0}</div>
-        </div>
-        <div className="card-icon">📬</div>
-      </div>
-      
-      <div className="dashboard-card total-feedback">
-        <div className="card-content">
-          <h3>{t('totalFeedback', "एकूण अभिप्राय")}</h3>
-          <div className="card-value">{analytics?.totalFeedback || 0}</div>
-        </div>
-        <div className="card-icon">📋</div>
-      </div>
-      
-      <div className="dashboard-card average-rating">
-        <div className="card-content">
-          <h3>{t('averageRating', "सरासरी मूल्यांकन")}</h3>
-          <div className="card-value">{analytics?.averageRating || 0} / 10</div>
-          <div className="rating-meter">
-            <div 
-              className="rating-meter-fill" 
-              style={{ 
-                width: `${(analytics?.averageRating / 10) * 100}%`,
-                backgroundColor: getRatingColor(analytics?.averageRating) 
-              }}
-            ></div>
+  // Render tabs based on active selection
+  const renderOverviewTab = () => {
+    return (
+      <div className="dashboard-cards">
+        <div className="dashboard-card today-feedback">
+          <div className="card-content">
+            <h3>{t('todaysFeedback', "आजचा अभिप्राय")}</h3>
+            <div className="card-value">{analytics?.todayFeedback || 0}</div>
           </div>
+          <div className="card-icon">📬</div>
         </div>
-        <div className="card-icon">⭐</div>
+        
+        <div className="dashboard-card total-feedback">
+          <div className="card-content">
+            <h3>{t('totalFeedback', "एकूण अभिप्राय")}</h3>
+            <div className="card-value">{analytics?.totalFeedback || 0}</div>
+          </div>
+          <div className="card-icon">📋</div>
+        </div>
+        
+        <div className="dashboard-card average-rating">
+          <div className="card-content">
+            <h3>{t('averageRating', "सरासरी मूल्यांकन")}</h3>
+            <div className="card-value">{analytics?.averageRating || 0} / 10</div>
+            <div className="rating-meter">
+              <div 
+                className="rating-meter-fill" 
+                style={{ 
+                  width: `${(analytics?.averageRating / 10) * 100}%`,
+                  backgroundColor: getRatingColor(analytics?.averageRating) 
+                }}
+              ></div>
+            </div>
+          </div>
+          <div className="card-icon">⭐</div>
       </div>
       
       <div className="trends-chart">
@@ -416,9 +461,173 @@ const AnalyticsPage = () => {
     </div>
   );
 
+  };
+
+  // Render department analysis tab
+  const renderDepartmentTab = () => {
+    return (
+      <div className="department-analysis">
+        <h2>{t('departmentAnalysis', 'Department Analysis')}</h2>
+        
+        {/* Department Ratings Donut Chart */}
+        <div className="top-issues-chart">
+          <h3>{t('departmentRatings', "विभाग मूल्यांकन")} </h3>
+          <div className="donut-chart-container">
+            <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                <Pie
+                  data={departmentData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={150}
+                  innerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  nameKey="name"
+                  label={({ name, value }) => `${name}: ${value}`}
+                  animationDuration={500}
+                >
+                  {departmentData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={DEPARTMENT_COLORS[index % DEPARTMENT_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value, name, {payload}) => [`${t('rating', 'Rating')}: ${value}/10 (${payload.count} ${t('feedbacks', 'feedbacks')})`, name]} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        
+        <div className="last-updated">
+          {t('updated', 'Updated')}: {new Date().toLocaleTimeString()} ({t('refreshInterval', 'refreshes every 5 minutes')})
+        </div>
+      </div>
+    );
+  };
+
+  // Render police station analysis tab
+  const renderPoliceStationTab = () => {
+    if (!analytics || !analytics.policeStationData || analytics.policeStationData.length === 0) {
+      return (
+        <div className="police-station-analysis empty-state">
+          <h2>{t('policeStationAnalysis', 'Police Station Analysis')}</h2>
+          <p>{t('noPoliceStationData', 'No police station data available')}</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="police-station-analysis">
+        <h2>{t('policeStationAnalysis', 'Police Station Analysis')}</h2>
+        
+        {/* Police Station Statistics Cards */}
+        <div className="dashboard-cards">
+          <div className="dashboard-card total-stations">
+            <div className="card-content">
+              <h3>{t('totalPoliceStations', 'Total Police Stations')}</h3>
+              <div className="card-value">{analytics?.totalPoliceStations || 0}</div>
+            </div>
+            <div className="card-icon">🏢</div>
+          </div>
+          
+          <div className="dashboard-card most-rated-station">
+            <div className="card-content">
+              <h3>{t('topRatedStation', 'Top Rated Station')}</h3>
+              {analytics?.topRatedStations?.[0] ? (
+                <>
+                  <div className="card-value">{analytics.topRatedStations[0].name}</div>
+                  <div className="rating-info">{analytics.topRatedStations[0].averageRating}/10</div>
+                </>
+              ) : (
+                <div className="card-value">-</div>
+              )}
+            </div>
+            <div className="card-icon">⭐</div>
+          </div>
+          
+          <div className="dashboard-card most-feedback-station">
+            <div className="card-content">
+              <h3>{t('mostFeedbackStation', 'Most Feedback Station')}</h3>
+              {analytics?.mostFeedbackStations?.[0] ? (
+                <>
+                  <div className="card-value">{analytics.mostFeedbackStations[0].name}</div>
+                  <div className="rating-info">{analytics.mostFeedbackStations[0].count} {t('feedbacks')}</div>
+                </>
+              ) : (
+                <div className="card-value">-</div>
+              )}
+            </div>
+            <div className="card-icon">📊</div>
+          </div>
+        </div>
+        
+        {/* Police Station Feedback Count */}
+        <div className="station-feedback-count">
+          <h3>{t('feedbackCountByStation', 'Feedback Count by Police Station')}</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={analytics.policeStationData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="count" fill="#0A2362" name={t('feedbackCount', 'Feedback Count')} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        {/* Police Station Average Ratings */}
+        <div className="station-ratings">
+          <h3>{t('averageRatingByStation', 'Average Rating by Police Station')}</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={analytics.policeStationData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis domain={[0, 10]} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="averageRating" name={t('averageRating', 'Average Rating')}>
+                {analytics.policeStationData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getRatingColor(entry.averageRating)} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        <div className="last-updated">
+          {t('updated', 'Updated')}: {new Date().toLocaleTimeString()} ({t('refreshInterval', 'refreshes every 5 minutes')})
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="analytics-page">
       <h1>{t('feedbackAnalytics', 'अभिप्राय विश्लेषण')}</h1>
+      
+      {/* Analytics Tabs */}
+      <div className="analytics-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'overall' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overall')}
+        >
+          {t('overallAnalysis', 'Overall Analysis')}
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'department' ? 'active' : ''}`}
+          onClick={() => setActiveTab('department')}
+        >
+          {t('departmentAnalysis', 'Department Analysis')}
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'policeStation' ? 'active' : ''}`}
+          onClick={() => setActiveTab('policeStation')}
+        >
+          {t('policeStationAnalysis', 'Police Station Analysis')}
+        </button>
+      </div>
 
       <div className="analytics-content">
         {loading ? (
@@ -437,7 +646,9 @@ const AnalyticsPage = () => {
             </button>
           </div>
         ) : (
-          renderOverviewTab()
+          activeTab === 'overall' ? renderOverviewTab() :
+          activeTab === 'department' ? renderDepartmentTab() :
+          renderPoliceStationTab()
         )}
       </div>
     </div>

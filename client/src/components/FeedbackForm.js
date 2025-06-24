@@ -55,7 +55,7 @@ const translations = {
     departmentRatingsHeading: "विभागानुसार रेटिंग",
     rating: "रेटिंग",
     alreadyRated: "विभाग आधीच निवडलेला आहे",
-    invalidPhone: "कृपया १० अंकी फोन नंबर टाका.",
+    invalidPhone: "कृपया १० अंकी फोन नंबर टाका.", 
     fileSizeError: "फाईलचा आकार १०MB पेक्षा कमी असणे आवश्यक आहे",
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
     descriptionRequired: "कृपया अभिप्राय नोंदवा."

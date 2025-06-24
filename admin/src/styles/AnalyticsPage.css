@@ -453,7 +453,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 80px;
 }
 
 /* Make sure the donut chart is responsive */
@@ -617,6 +617,9 @@
   
   .recharts-legend-item-text {
     font-size: 10px !important;
+    display: flex  !important;
+    justify-content: center  !important;
+    align-items: center  !important;
   }
   
   .recharts-tooltip-wrapper {
