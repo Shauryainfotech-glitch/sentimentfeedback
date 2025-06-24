@@ -5,11 +5,11 @@ import "react-toastify/dist/ReactToastify.css";
 
 const translations = {
   en: {
-    slogan: "Your Opinion Counts – Improving Ahilyanagar Police Services!",
+    // slogan: "Your Opinion Counts – Improving Ahilyanagar Police Services!",
     title: "Feedback",
     fullName: "Full Name",
     phone: "Phone Number",
-    description: "Opinion",
+    description: "Feedback",
     image: "Upload Image (Optional)",
     overallRating: "Overall Rating (1-10)",
     departmentRating: "Add Department-wise Rating (Optional)",
@@ -22,18 +22,29 @@ const translations = {
     remove: "Remove",
     success: "Feedback submitted successfully.",
     error: "There was an issue submitting your feedback. Please try again later.",
-    descriptionNote: "Express your opinion (max 50 words)",
+    descriptionNote: "Express your feedback (max 50 words)",
     departmentList: ["Traffic", "Women Safety", "Narcotic Drugs", "Cyber Crime"],
-    departmentRatingsHeading: "Department Ratings",
+    departmentRatingsHeading: "For department-wise rating, select a department below",
     rating: "Rating",
     alreadyRated: "department has already been rated",
     invalidPhone: "Please enter a valid 10-digit phone number.",
     fileSizeError: "File size must be less than 10MB",
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
-    descriptionRequired: "Please enter your feedback."
+    descriptionRequired: "Please enter your feedback.",
+    slogans: [
+      "Ahilyanagar Police are aware – <b>Reform is a continuous process.</b'",
+      "We are committed to serving the public. We are also ready to improve this very service. So – <b>Do you have any suggestions?</b>",
+      "Through this dialogue between you and us,<br/><b>let's build a safe Ahilyanagar!</b>"
+    ],
+    tableHeaders: {
+      department: "Department",
+      rating: "Rating",
+      value: "Value",
+      select: "Select"
+    }
   },
   mr: {
-    slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
+    // slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
     title: "अभिप्राय",
     fullName: "पूर्ण नाव",
     phone: "फोन नंबर",
@@ -52,13 +63,24 @@ const translations = {
     error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
     descriptionNote: "आपली प्रतिक्रिया व्यक्त करा (कमाल ५० शब्दांची मर्यादा )",
     departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ विरुद्ध कारवाई", "सायबर गुन्हे"],
-    departmentRatingsHeading: "विभागानुसार रेटिंग",
+    departmentRatingsHeading: "विभागानुसार रेटिंग साठी खालील विभाग निवडा",
     rating: "रेटिंग",
     alreadyRated: "विभाग आधीच निवडलेला आहे",
     invalidPhone: "कृपया १० अंकी फोन नंबर टाका.",
     fileSizeError: "फाईलचा आकार १०MB पेक्षा कमी असणे आवश्यक आहे",
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
-    descriptionRequired: "कृपया अभिप्राय नोंदवा."
+    descriptionRequired: "कृपया अभिप्राय नोंदवा.",
+    slogans: [
+      "अहिल्यानगर पोलिसांना जाणीव आहे – <b>सुधारणा ही निरंतर प्रक्रिया आहे.</b>",
+      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत. याच सेवेत सुधारणा करण्यासाठी आम्ही तयार आहोत. त्यासाठी – <b>तुम्हाला काही सूचवायचं आहे का ?</b>",
+      "<b>तुमच्या-आमच्या या सुसंवादातून घडवूया सुरक्षित अहिल्यानगर !</b>"
+    ],
+    tableHeaders: {
+      department: "विभाग",
+      rating: "रेटिंग",
+      value: "मूल्यांकन",
+      select: "निवडा"
+    }
   }
 };
 
@@ -67,7 +89,7 @@ const policeStations = [
   { en: "Ashwi", mr: "अश्वी" },
   { en: "Belavandi", mr: "बेलवंडी" },
   { en: "Bhingar Camp", mr: "भिंगार कॅम्प" },
-  { en: "Ghargaon", mr: "घरगाव" },
+  { en: "Ghargaon", mr: "घारगाव" },
   { en: "Jamkhed", mr: "जामखेड" },
   { en: "Karjat", mr: "कर्जत" },
   { en: "Kharda", mr: "खरडा" },
@@ -106,9 +128,14 @@ const FeedbackForm = () => {
     description: "",
     overallRating: 2,
   });
-  const [departmentRatings, setDepartmentRatings] = useState([]);
+  const [deptRatings, setDeptRatings] = useState(
+    t.departmentList.map((dept, i) => ({
+      department: dept,
+      rating: 5,
+      checked: false,
+    }))
+  );
   const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [departmentRating, setDepartmentRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPoliceStation, setSelectedPoliceStation] = useState("");
 
@@ -138,6 +165,15 @@ const FeedbackForm = () => {
     };
   }, []);
 
+  // Helper to get default deptRatings for a language
+  const getDefaultDeptRatings = (lang) =>
+    translations[lang].departmentList.map((dept) => ({
+      department: dept,
+      rating: 5,
+      checked: false,
+    }));
+
+  // Update deptRatings when language changes
   useEffect(() => {
     setFormData({
       name: "",
@@ -145,7 +181,7 @@ const FeedbackForm = () => {
       description: "",
       overallRating: 2,
     });
-    setDepartmentRatings([]);
+    setDeptRatings(getDefaultDeptRatings(language));
   }, [language]);
 
   useEffect(() => {
@@ -154,13 +190,6 @@ const FeedbackForm = () => {
       updateRangeProgress(overallRatingInput);
     }
   }, [formData.overallRating]);
-
-  useEffect(() => {
-    const departmentRatingInput = document.querySelector('.department-rating-slider');
-    if (departmentRatingInput) {
-      updateRangeProgress(departmentRatingInput);
-    }
-  }, [departmentRating]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -224,7 +253,10 @@ const FeedbackForm = () => {
     try {
       const payload = {
         ...formData,
-        departmentRatings,
+        departmentRatings: deptRatings.filter(d => d.checked).map(d => ({
+          department: d.department,
+          rating: d.rating,
+        })),
         policeStation: selectedPoliceStation,
       };
       const response = await axios.post(
@@ -251,7 +283,7 @@ const FeedbackForm = () => {
         description: "",
         overallRating: 2,
       });
-      setDepartmentRatings([]);
+      setDeptRatings(getDefaultDeptRatings(language));
       setSelectedPoliceStation("");
 
     } catch (err) {
@@ -277,36 +309,29 @@ const FeedbackForm = () => {
     }
   };
 
-  const addDepartmentRating = () => {
-    if (!selectedDepartment) return;
-    if (departmentRatings.find((d) => d.department === selectedDepartment)) {
-      toast.info(`${selectedDepartment} ${t.alreadyRated}`, {
-        position: "top-center",
-        autoClose: 5000,
-        theme: "colored",
-      });
-      return;
-    }
-
-    setDepartmentRatings((prev) => [
-      ...prev,
-      { department: selectedDepartment, rating: departmentRating },
-    ]);
-    setSelectedDepartment("");
-    setDepartmentRating(5);
-
-    setTimeout(() => {
-      const departmentRatingInput = document.querySelector('.department-rating-slider');
-      if (departmentRatingInput) {
-        updateRangeProgress(departmentRatingInput);
-      }
-    }, 0);
+  const handleDeptSlider = (idx, value) => {
+    setDeptRatings(ratings =>
+      ratings.map((r, i) =>
+        i === idx ? { ...r, rating: Number(value) } : r
+      )
+    );
   };
 
-  const removeDepartmentRating = (department) => {
-    setDepartmentRatings((prev) =>
-      prev.filter((d) => d.department !== department)
+  const handleDeptCheck = (idx, checked) => {
+    setDeptRatings(ratings =>
+      ratings.map((r, i) =>
+        i === idx ? { ...r, checked } : r
+      )
     );
+  };
+
+  // Helper for overall rating sentiment
+  const getRatingSentiment = (rating) => {
+    const num = Number(rating);
+    if (num >= 1 && num <= 4) return { label: language === 'mr' ? 'निगेटिव्ह' : 'Negative', color: 'red' };
+    if (num >= 5 && num <= 6) return { label: language === 'mr' ? 'न्यूट्रल' : 'Neutral', color: 'orange' };
+    if (num >= 7 && num <= 10) return { label: language === 'mr' ? 'पॉझिटिव्ह' : 'Positive', color: 'green' };
+    return { label: '', color: '' };
   };
 
   return (
@@ -321,11 +346,16 @@ const FeedbackForm = () => {
           <option value="en">English</option>
         </select>
       </div>
-
-      <div className="text-center mb-4 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
-        <h3 className="fw-bold" style={{ color: "#0A2362" }}>{t.slogan}</h3>
-      </div>
-
+      {/* Main Slogan Section (commented out) */}
+       {/* <div className="text-center mb-3 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
+         <h3 className="fw-bold" style={{ color: "#0A2362" }}>{t.slogan}</h3>
+       </div> */}
+      {/* Additional Slogans, each in their own box, with bolded phrases */}
+      {t.slogans && t.slogans.map((s, idx) => (
+        <div key={idx} className="text-center mb-3 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
+          <div style={{ color: "#0A2362", fontSize: "1.3rem" }} dangerouslySetInnerHTML={{ __html: s }} />
+        </div>
+      ))}
       <h1 className="fw-bold text-center mb-4" style={{ color: "#0A2362" }}>
         {t.title}
       </h1>
@@ -419,86 +449,72 @@ const FeedbackForm = () => {
             onChange={handleChange}
             className="form-range"
           />
-          <div className="range-value">{formData.overallRating} / 10</div>
+          <div className="range-value">
+            {formData.overallRating} / 10
+            {(() => {
+              const sentiment = getRatingSentiment(formData.overallRating);
+              return (
+                <span style={{ marginLeft: 10, color: sentiment.color, fontSize: '0.80em' }}>
+                  ( {sentiment.label} )
+                </span>
+              );
+            })()}
+          </div>
         </div>
 
         <div className="mb-4 border rounded p-3 bg-light">
           <label className="form-label fw-bold mb-2" style={{ color: "#0A2362" }}>
             {t.departmentRatingsHeading}
           </label>
-          <div className="row g-2 align-items-center">
-            <div className="col-md-5">
-              <select
-                className="form-select"
-                value={selectedDepartment}
-                onChange={(e) => setSelectedDepartment(e.target.value)}
-              >
-                <option value="">{t.selectDepartment}</option>
-                {t.departmentList.map((dept, i) => (
-                  <option key={i} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-4">
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={departmentRating}
-                onChange={(e) => setDepartmentRating(e.target.value)}
-                className="form-range department-rating-slider"
-              />
-              <div className="range-value">{departmentRating} / 10</div>
-            </div>
-            <div className="col-md-3">
-              <button
-                type="button"
-                className="btn"
-                style={{
-                  backgroundColor: "#0A2362",
-                  color: "white",
-                  padding: "10px 30px",
-                  width: "100%",
-                }}
-                onClick={addDepartmentRating}
-              >
-                {t.add}
-              </button>
-            </div>
-          </div>
-
-          {departmentRatings.length > 0 && (
-            <div className="mt-3">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>{t.selectDepartment}</th>
-                    <th>{t.rating}</th>
-                    <th>{t.remove}</th>
+          <div style={{overflowX: 'auto'}}>
+            <table className="table mb-0" style={{ background: 'transparent' }}>
+              <thead>
+                <tr>
+                  <th style={{minWidth: 120}}>{t.tableHeaders.department}</th>
+                  <th style={{minWidth: 200}}>{t.tableHeaders.rating}</th>
+                  <th style={{minWidth: 120}}>{t.tableHeaders.value}</th>
+                  <th style={{minWidth: 60}}>{t.tableHeaders.select}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deptRatings.map((dept, idx) => (
+                  <tr key={idx}>
+                    <td className="fw-bold">{idx + 1}. {dept.department}</td>
+                    <td>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={dept.rating}
+                        onChange={e => handleDeptSlider(idx, e.target.value)}
+                        className="form-range department-rating-slider"
+                        style={{ minWidth: 120 }}
+                      />
+                    </td>
+                    <td>
+                      {dept.rating} / 10
+                      {(() => {
+                        const sentiment = getRatingSentiment(dept.rating);
+                        return (
+                          <span style={{ marginLeft: 6, color: sentiment.color, fontSize: '0.85em' }}>
+                            ({sentiment.label})
+                          </span>
+                        );
+                      })()}
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={dept.checked}
+                        onChange={e => handleDeptCheck(idx, e.target.checked)}
+                        style={{ width: 22, height: 22, accentColor: '#0A2362' }}
+                      />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {departmentRatings.map((r, i) => (
-                    <tr key={i}>
-                      <td>{r.department}</td>
-                      <td>{r.rating}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={() => removeDepartmentRating(r.department)}
-                        >
-                          {t.remove}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="text-end">
