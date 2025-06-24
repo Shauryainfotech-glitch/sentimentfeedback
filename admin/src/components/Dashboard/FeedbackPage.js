@@ -8,6 +8,42 @@ import { faEye, faTimes, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 // API base URL
 const API_URL = process.env.REACT_APP_API_URL;
 
+// Police station list with translations
+const policeStations = [
+  { en: "Akole", mr: "अकोले" },
+  { en: "Ashwi", mr: "अश्वी" },
+  { en: "Belavandi", mr: "बेलवंडी" },
+  { en: "Bhingar Camp", mr: "भिंगार कॅम्प" },
+  { en: "Ghargaon", mr: "घरगाव" },
+  { en: "Jamkhed", mr: "जामखेड" },
+  { en: "Karjat", mr: "कर्जत" },
+  { en: "Kharda", mr: "खरडा" },
+  { en: "Kopargaon City", mr: "कोपरगाव शहर" },
+  { en: "Kopargaon Rural", mr: "कोपरगाव ग्रामीण" },
+  { en: "Kotwali", mr: "कोतवाली" },
+  { en: "Loni", mr: "लोणी" },
+  { en: "MIDC", mr: "MIDC" },
+  { en: "Mirajgaon", mr: "मिरजगाव" },
+  { en: "Nagar Taluka", mr: "नगर तालुका" },
+  { en: "Newasa", mr: "नेवासा" },
+  { en: "Parner", mr: "पारनेर" },
+  { en: "Pathardi", mr: "पाथर्डी" },
+  { en: "Rahata", mr: "राहाता" },
+  { en: "Rahuri", mr: "राहुरी" },
+  { en: "Rajur", mr: "राजूर" },
+  { en: "Sangamner City", mr: "संगमनेर शहर" },
+  { en: "Sangamner Rural", mr: "संगमनेर ग्रामीण" },
+  { en: "Shani Shingnapur", mr: "शनि शिंगणापूर" },
+  { en: "Shevgaon", mr: "शेवगाव" },
+  { en: "Shirdi", mr: "शिर्डी" },
+  { en: "Shrigonda", mr: "श्रीगोंदा" },
+  { en: "Shrirampur City", mr: "श्रीरामपूर शहर" },
+  { en: "Shrirampur Rural", mr: "श्रीरामपूर ग्रामीण" },
+  { en: "Sonai", mr: "सोनई" },
+  { en: "Supa", mr: "सुपा" },
+  { en: "Tofkhana", mr: "तोफखाना" }
+];
+
 // Placeholder function for fallback mock data if API fails
 const createFallbackFeedbacks = (t) => [
  
@@ -18,6 +54,7 @@ const FeedbackPage = () => {
   const { currentLanguage } = useLanguage(); // Use language context
   const [feedbacks, setFeedbacks] = useState([]);
   const [dateFilter, setDateFilter] = useState('all');
+  const [stationFilter, setStationFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -103,7 +140,6 @@ const FeedbackPage = () => {
       t('overallRating'),
       t('departmentRatings'),
       t('createdAt'),
-      t('imageURL')
     ];
 
     // Create CSV content with UTF-8 BOM for proper character encoding in Excel
@@ -172,39 +208,52 @@ const FeedbackPage = () => {
     });
   };
 
-  // Filter feedback by date range
-  // Improved filtering function with correct date handling
+  // Filter feedback by date range and police station
+  // Improved filtering function with correct date and station filtering
   const getFilteredFeedbacks = () => {
-    if (dateFilter === 'all') return feedbacks;
-    
-    // Create a fresh Date object for now
-    const now = new Date();
-    let cutoffDate;
-    
-    // Create cutoff date based on filter selection
-    switch (dateFilter) {
-      case 'today': {
-        // Set to beginning of today
-        cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-        break;
-      }
-      case 'month': {
-        // Set to beginning of this month
-        cutoffDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        break;
-      }
-      default:
-        return feedbacks;
-    }
+    if (!feedbacks || !feedbacks.length) return [];
     
     return feedbacks.filter(feedback => {
-      // Ensure we're using the createdAt field from the API
-      if (!feedback.createdAt) {
-        return true; // Include if no date (fallback)
+      // Date filtering
+      if (dateFilter !== 'all') {
+        const now = new Date();
+        let cutoffDate;
+        
+        // Create cutoff date based on filter selection
+        switch (dateFilter) {
+          case 'today': {
+            // Set to beginning of today
+            cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            break;
+          }
+          case 'month': {
+            // Set to beginning of this month
+            cutoffDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          }
+          default:
+            break;
+        }
+
+        // Ensure we're using the createdAt field from the API
+        if (!feedback.createdAt) {
+          return false; // Skip if no date
+        }
+        
+        const feedbackDate = new Date(feedback.createdAt);
+        if (feedbackDate < cutoffDate) {
+          return false; // Skip if before cutoff date
+        }
       }
       
-      const feedbackDate = new Date(feedback.createdAt);
-      return feedbackDate >= cutoffDate;
+      // Police station filtering
+      if (stationFilter !== 'all' && feedback.policeStation) {
+        return feedback.policeStation === stationFilter;
+      } else if (stationFilter !== 'all') {
+        return false;
+      }
+      
+      return true; // Include by default
     });
   };
   
@@ -279,11 +328,13 @@ const FeedbackPage = () => {
     return Math.round((Number(rating) / 10) * 5);
   };
 
-  // Close image popup
-  const closeImagePopup = () => {
-    setSelectedImage(null);
+  // Helper function to get police station name based on current language
+  const getLocalizedStationName = (station) => {
+    const foundStation = policeStations.find(s => s.en === station);
+    if (!foundStation) return station;
+    return currentLanguage === 'mr' ? foundStation.mr : foundStation.en;
   };
-
+  
   return (
     <div className="feedback-page">
       <div className="feedback-header">
@@ -302,6 +353,22 @@ const FeedbackPage = () => {
               <option value="month">{t('month', 'This Month')}</option>
             </select>
           </div>
+          <div className="filter-container">
+            <label htmlFor="station-filter">{t('filterByStation', 'Filter by station:')}</label>
+            <select 
+              id="station-filter"
+              className="station-filter-dropdown"
+              value={stationFilter}
+              onChange={(e) => setStationFilter(e.target.value)}
+            >
+              <option value="all">{t('allStations', 'All Stations')}</option>
+              {policeStations.map(station => (
+                <option key={station.en} value={station.en}>
+                  {currentLanguage === 'mr' ? station.mr : station.en}
+                </option>
+              ))}
+            </select>
+          </div>
           <button 
             className="export-button" 
             onClick={exportToCSV}
@@ -311,25 +378,6 @@ const FeedbackPage = () => {
           </button>
         </div>
       </div>
-
-      {/* Image Popup Modal */}
-      {selectedImage && (
-        <div className="image-popup-overlay" onClick={closeImagePopup}>
-          <div className="image-popup-container" onClick={(e) => e.stopPropagation()}>
-            <button className="close-popup" onClick={closeImagePopup}>
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-            <div className="popup-image-wrapper">
-              <img 
-                src={selectedImage} 
-                alt={t('feedbackImage')} 
-                className="popup-image" 
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="last-refreshed-info">
         {t('lastRefreshed', 'Last refreshed')}: {lastRefreshed.toLocaleTimeString()}
       </div>
@@ -390,6 +438,11 @@ const FeedbackPage = () => {
                       {feedback.email}
                     </div>
                   )}
+                  {feedback.policeStation && (
+                    <div className="feedback-police-station">
+                      <strong>{t('policeStation', 'Police Station')}:</strong> {getLocalizedStationName(feedback.policeStation)}
+                    </div>
+                  )}
                 </div>
                 
                 {feedback.description || feedback.message ? (
@@ -403,27 +456,7 @@ const FeedbackPage = () => {
               </div>
               
               <div className="feedback-card-footer">
-                <div className="feedback-card-actions">
-                  {/* View Image button */}
-                  {(feedback.imageUrl || feedback.image) && (
-                    <button 
-                      className="view-image-btn standalone"
-                      onClick={() => setSelectedImage(feedback.imageUrl || feedback.image)}
-                    >
-                      <FontAwesomeIcon icon={faEye} /> {t('viewImage', 'View Image')}
-                    </button>
-                  )}
-                  
-                  {/* Mark as Read button */}
-                  {feedback.status === 'new' && (
-                    <button 
-                      className="mark-read-btn" 
-                      onClick={() => markAsRead(feedback.id)}
-                    >
-                      {t('markAsRead', 'Mark as Read')}
-                    </button>
-                  )}
-                </div>
+             
               </div>
             </div>
           ))}
