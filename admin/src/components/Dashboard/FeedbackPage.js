@@ -55,10 +55,13 @@ const FeedbackPage = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [dateFilter, setDateFilter] = useState('all');
   const [stationFilter, setStationFilter] = useState('all');
+  const [sentimentFilter, setSentimentFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [sliderValue, setSliderValue] = useState(5);
 
   // Fetch feedback from the backend API
   const fetchFeedbacks = async () => {
@@ -253,11 +256,22 @@ const FeedbackPage = () => {
         return false;
       }
       
+      // Sentiment filtering
+      if (sentimentFilter !== 'all') {
+        const rating = Number(feedback.overallRating);
+        let sentiment = 'neutral';
+        if (rating >= 1 && rating <= 4) sentiment = 'negative';
+        else if (rating >= 5 && rating <= 6) sentiment = 'neutral';
+        else if (rating >= 7 && rating <= 10) sentiment = 'positive';
+        if (sentiment !== sentimentFilter) return false;
+      }
+      
       return true; // Include by default
     });
   };
   
   const filteredFeedbacks = getFilteredFeedbacks();
+  const visibleFeedbacks = filteredFeedbacks.slice(0, visibleCount);
 
   const markAsRead = async (id) => {
     try {
@@ -357,7 +371,7 @@ const FeedbackPage = () => {
             <label htmlFor="station-filter">{t('filterByStation', 'Filter by station:')}</label>
             <select 
               id="station-filter"
-              className="station-filter-dropdown"
+              className="date-filter-dropdown"
               value={stationFilter}
               onChange={(e) => setStationFilter(e.target.value)}
             >
@@ -367,6 +381,20 @@ const FeedbackPage = () => {
                   {currentLanguage === 'mr' ? station.mr : station.en}
                 </option>
               ))}
+            </select>
+          </div>
+          <div className="filter-container">
+            <label htmlFor="sentiment-filter">{t('filterBySentiment', 'Filter by sentiment:')}</label>
+            <select
+              id="sentiment-filter"
+              className="date-filter-dropdown"
+              value={sentimentFilter}
+              onChange={e => setSentimentFilter(e.target.value)}
+            >
+              <option value="all">{t('allSentiments', 'All')}</option>
+              <option value="positive">{currentLanguage === 'mr' ? 'पॉझिटिव्ह' : 'Positive'}</option>
+              <option value="neutral">{currentLanguage === 'mr' ? 'न्यूट्रल' : 'Neutral'}</option>
+              <option value="negative">{currentLanguage === 'mr' ? 'निगेटिव्ह' : 'Negative'}</option>
             </select>
           </div>
           <button 
@@ -383,7 +411,7 @@ const FeedbackPage = () => {
       </div>
 
       {loading ? (
-        <div className="loading-container">
+        <div className="loading-container" style={{ textAlign: 'center', margin: '1rem 0' }}>
           <div className="loading-spinner"></div>
           <p>{t('loadingFeedback', 'Loading feedback...')}</p>
         </div>
@@ -400,7 +428,7 @@ const FeedbackPage = () => {
         </div>
       ) : (
         <div className="feedback-grid">
-          {filteredFeedbacks.map((feedback) => (
+          {visibleFeedbacks.map((feedback) => (
             <div key={`${feedback.id}-${currentLanguage}`} className={`feedback-card ${feedback.status === 'new' ? 'new-feedback' : ''}`}>
               <div className="feedback-card-header">
                 <div className="feedback-header-content">
@@ -461,6 +489,15 @@ const FeedbackPage = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {visibleCount < filteredFeedbacks.length && (
+        <button
+          className="load-more-btn"
+          onClick={() => setVisibleCount(visibleCount + 10)}
+        >
+          {t('loadMore', 'Load More')}
+        </button>
       )}
     </div>
   );

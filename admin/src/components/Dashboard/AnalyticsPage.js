@@ -424,37 +424,6 @@ const AnalyticsPage = () => {
       </div>
       
       {/* Top Feedback Issues Donut Chart */}
-      <div className="top-issues-chart">
-        <h3>{t('departmentRatings', "विभाग मूल्यांकन")} </h3>
-        <div className="donut-chart-container">
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={departmentData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={150}
-                innerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                nameKey="name"
-                label={({ name, value }) => `${name}: ${value}`}
-                animationDuration={500} // Smoother transitions for real-time updates
-              >
-                {departmentData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={DEPARTMENT_COLORS[index % DEPARTMENT_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value, name, {payload}) => [`${t('rating', 'Rating')}: ${value}/10 (${payload.count} ${t('feedbacks', 'feedbacks')})`, name]} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="last-updated">
-          {t('updated', 'Updated')}: {new Date().toLocaleTimeString()} ({t('refreshInterval', 'refreshes every 5 minutes')})
-        </div>
-      </div>
       
       {/* Department Improvement Chart */}
     
@@ -472,16 +441,16 @@ const AnalyticsPage = () => {
         {/* Department Ratings Donut Chart */}
         <div className="top-issues-chart">
           <h3>{t('departmentRatings', "विभाग मूल्यांकन")} </h3>
-          <div className="donut-chart-container">
-            <ResponsiveContainer width="100%" height={400}>
+          <div className="donut-chart-container" style={{ maxWidth: 400, width: '100%'}}>
+            <ResponsiveContainer width="100%" height={window.innerWidth < 600 ? 220 : 400}>
               <PieChart>
                 <Pie
                   data={departmentData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={150}
-                  innerRadius={80}
+                  outerRadius={window.innerWidth < 600 ? 80 : 150}
+                  innerRadius={window.innerWidth < 600 ? 40 : 80}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"

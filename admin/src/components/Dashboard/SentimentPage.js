@@ -495,8 +495,25 @@ const SentimentPage = () => {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={140} 
-                  tick={renderCustomizedTickX} 
+                  width={window.innerWidth < 600 ? 90 : 140}
+                  tick={props => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      dy={16}
+                      fontSize={window.innerWidth < 600 ? 10 : 12}
+                      fill="#666"
+                      textAnchor="end"
+                      style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: window.innerWidth < 600 ? 80 : 120
+                      }}
+                    >
+                      {props.payload.value}
+                    </text>
+                  )}
                   axisLine={{ stroke: '#ccc' }}
                 />
               )}

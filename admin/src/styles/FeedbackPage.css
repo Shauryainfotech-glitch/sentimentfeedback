@@ -559,3 +559,47 @@
     grid-template-columns: 1fr;
   }
 }
+
+.load-more-btn {
+  background: linear-gradient(90deg, #0A2362 0%, #1e90ff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 0.85em 2.5em;
+  font-size: 1.15em;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(10,35,98,0.10);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  margin: 2.5rem auto 2.5rem auto;
+  display: block;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.load-more-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+  z-index: 0;
+}
+
+.load-more-btn:hover, .load-more-btn:focus {
+  background: linear-gradient(90deg, #1e90ff 0%, #0A2362 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(10,35,98,0.18);
+  outline: none;
+}
+
+.load-more-btn:active::after {
+  width: 200%;
+  height: 200%;
+}

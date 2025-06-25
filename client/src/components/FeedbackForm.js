@@ -283,7 +283,7 @@ const FeedbackForm = () => {
         description: "",
         overallRating: 2,
       });
-      setDeptRatings(getDefaultDeptRatings(language));
+    setDeptRatings(getDefaultDeptRatings(language));
       setSelectedPoliceStation("");
 
     } catch (err) {
