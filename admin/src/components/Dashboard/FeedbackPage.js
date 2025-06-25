@@ -9,7 +9,7 @@ import { faEye, faTimes, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 const API_URL = process.env.REACT_APP_API_URL;
 
 // Police station list with translations
-const policeStations = [
+export const policeStations = [
   { en: "Akole", mr: "अकोले" },
   { en: "Ashwi", mr: "अश्वी" },
   { en: "Belavandi", mr: "बेलवंडी" },

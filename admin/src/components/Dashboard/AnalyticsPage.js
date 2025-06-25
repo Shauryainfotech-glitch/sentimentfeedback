@@ -4,6 +4,25 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import '../../styles/AnalyticsPage.css';
 import { useLanguage } from '../../context/LanguageContext';
 
+// Import police stations data from FeedbackPage
+import { policeStations } from './FeedbackPage'; // Make sure FeedbackPage exports policeStations
+
+// Function to get translated station name
+const getTranslatedStationName = (stationName, currentLanguage) => {
+  if (!stationName) return '';
+  
+  // Find the station in our list
+  const station = policeStations.find(s => 
+    s.en.toLowerCase() === stationName.toLowerCase() || 
+    s.mr === stationName
+  );
+  
+  if (!station) return stationName; // Return original if not found
+  
+  // Return the appropriate translation based on current language
+  return currentLanguage === 'mr' ? station.mr : station.en;
+};
+
 // API URL from environment variable or default to localhost
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -328,12 +347,16 @@ const AnalyticsPage = () => {
       }
     });
 
-    const policeStationData = Object.entries(policeStationMap).map(([station, data]) => ({
-      name: station,
-      count: data.count,
-      averageRating: data.count > 0 ? (data.totalRating / data.count).toFixed(1) : 0,
-      ratings: data.ratings
-    }));
+    const policeStationData = Object.entries(policeStationMap).map(([station, data]) => {
+      const translatedName = getTranslatedStationName(station, currentLanguage);
+      return {
+        name: translatedName,
+        originalName: station, // Keep original name for reference
+        count: data.count,
+        averageRating: data.count > 0 ? (data.totalRating / data.count).toFixed(1) : 0,
+        ratings: data.ratings
+      };
+    });
 
     // Sort by count (most feedback first)
     const byFeedbackCount = [...policeStationData];
@@ -415,10 +438,10 @@ const AnalyticsPage = () => {
           <BarChart data={analytics?.monthlyTrends}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
+            <YAxis label={{ value: t('count', 'संख्या'), angle: -90, position: 'insideLeft' }} />
+            <Tooltip formatter={(value) => [value, t('count', 'संख्या')]} />
             <Legend />
-            <Bar dataKey="count" fill="#0A2362" />
+            <Bar dataKey="count" name={t('count', 'संख्या')} fill="#0A2362" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -533,7 +556,7 @@ const AnalyticsPage = () => {
         
         {/* Police Station Feedback Count */}
         <div className="station-feedback-count">
-          <h3>{t('feedbackCountByStation', 'Feedback Count by Police Station')}</h3>
+          <h3>{t('Feedback Count By Station')}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={analytics.policeStationData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -541,14 +564,14 @@ const AnalyticsPage = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="count" fill="#0A2362" name={t('feedbackCount', 'Feedback Count')} />
+              <Bar dataKey="count" fill="#0A2362" name={t('Feedback Count')} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         
         {/* Police Station Average Ratings */}
         <div className="station-ratings">
-          <h3>{t('averageRatingByStation', 'Average Rating by Police Station')}</h3>
+          <h3>{t('Average Rating By Station')}</h3>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={analytics.policeStationData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -556,7 +579,7 @@ const AnalyticsPage = () => {
               <YAxis domain={[0, 10]} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="averageRating" name={t('averageRating', 'Average Rating')}>
+              <Bar dataKey="averageRating" name={t('averageRating')}>
                 {analytics.policeStationData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={getRatingColor(entry.averageRating)} />
                 ))}

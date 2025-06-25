@@ -312,33 +312,40 @@ const SentimentPage = () => {
 
     return (
       <div className="dashboard-card sentiment-distribution">
-        <h3>{t('overallSentimentDistribution', 'Overall Sentiment Distribution')}</h3>
+        <h3 style={{ width: '100%', textAlign: 'center', marginBottom: '80px', marginTop: '0px', position: 'relative', zIndex: 5 }}>{t('overallSentimentDistribution', 'Overall Sentiment Distribution')}</h3>
 
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
-            <PieChart margin={isMobile ? { top: 5, right: 5, bottom: 5, left: 5 } : { top: 5, right: 30, bottom: 5, left: 30 }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 220 : 350}>
+            <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                labelLine={isMobile ? false : true}
-                label={!isMobile}
-                outerRadius={isMobile ? 70 : 90}
+                labelLine={false}
+                label={false}
+                outerRadius={isMobile ? 100 : 140}
                 fill="#8884d8"
                 dataKey="value"
+                isAnimationActive={false}
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    stroke="none"
+                  />
                 ))}
               </Pie>
-              <Legend 
-                verticalAlign={isMobile ? "middle" : "bottom"}
-                align={isMobile ? "right" : "center"}
-                layout={isMobile ? "vertical" : "horizontal"}
-                iconSize={isMobile ? 8 : 10}
-                wrapperStyle={isMobile ? { right: 10 } : null}
+              <Tooltip 
+                formatter={(value, name) => [`${value}%`, name]}
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  padding: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
               />
-              <Tooltip formatter={(value) => `${value}%`} />
             </PieChart>
           </ResponsiveContainer>
         </div>
