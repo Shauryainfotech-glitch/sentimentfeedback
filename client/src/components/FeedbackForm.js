@@ -32,9 +32,9 @@ const translations = {
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
     descriptionRequired: "Please enter your feedback.",
     slogans: [
-      "Ahilyanagar Police are aware – <b>Reform is a continuous process.</b'",
-      "We are committed to serving the public. We are also ready to improve this very service. So – <b>Do you have any suggestions?</b>",
-      "Through this dialogue between you and us,<br/><b>let's build a safe Ahilyanagar!</b>"
+      "Ahilyanagar Police belives that – <b>\"Their is always scope for improve\"</b'",
+      "We are committed to serving the public. We are also ready to improve our services. So – <b>\"Do you have any suggestions?\"</b>",
+      "Through this dialogue between you and us,<br/><b>\"let's build a safe Ahilyanagar!\"</b>"
     ],
     tableHeaders: {
       department: "Department",
@@ -61,7 +61,7 @@ const translations = {
     remove: "काढा",
     success: "अभिप्राय यशस्वीरित्या पाठवला गेला.",
     error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
-    descriptionNote: "आपली प्रतिक्रिया व्यक्त करा (कमाल ५० शब्दांची मर्यादा )",
+    descriptionNote: "आपली अभिप्राय व्यक्त करा (कमाल ५० शब्दांची मर्यादा )",
     departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ विरुद्ध कारवाई", "सायबर गुन्हे"],
     departmentRatingsHeading: "विभागानुसार रेटिंग साठी खालील विभाग निवडा",
     rating: "रेटिंग",
@@ -71,10 +71,10 @@ const translations = {
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
     descriptionRequired: "कृपया अभिप्राय नोंदवा.",
     slogans: [
-      "अहिल्यानगर पोलिसांना जाणीव आहे – <b>सुधारणा ही निरंतर प्रक्रिया आहे.</b>",
-      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत. याच सेवेत सुधारणा करण्यासाठी आम्ही तयार आहोत. त्यासाठी – <b>तुम्हाला काही सूचवायचं आहे का ?</b>",
-      "<b>तुमच्या-आमच्या या सुसंवादातून घडवूया सुरक्षित अहिल्यानगर !</b>"
-    ],
+      "अहिल्यानगर पोलिसांना जाणीव आहे – <b><span style='font-size: 1.5em; display: block;'>\"सुधारणा ही निरंतर प्रक्रिया आहे.\"</span></b>",
+      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत. याच सेवेत सुधारणा करण्यासाठी आम्ही तयार आहोत. त्यासाठी – <b><span style='font-size: 1.5em; display: block;'>\"तुम्हाला काही सूचवायचं आहे का ?\"</span></b>",
+      "<b><span style='font-size: 1.5em; display: block;'>\"तुमच्या-आमच्या या सुसंवादातून घडवूया सुरक्षित अहिल्यानगर !\"</span></b>"
+    ],    
     tableHeaders: {
       department: "विभाग",
       rating: "रेटिंग",
@@ -182,6 +182,12 @@ const FeedbackForm = () => {
       overallRating: 2,
     });
     setDeptRatings(getDefaultDeptRatings(language));
+    
+    // Update range inputs after language change
+    setTimeout(() => {
+      const rangeInputs = document.querySelectorAll('input[type="range"]');
+      rangeInputs.forEach(input => updateRangeProgress(input));
+    }, 0);
   }, [language]);
 
   useEffect(() => {
@@ -190,6 +196,12 @@ const FeedbackForm = () => {
       updateRangeProgress(overallRatingInput);
     }
   }, [formData.overallRating]);
+  
+  // Update department rating sliders when they change
+  useEffect(() => {
+    const departmentSliders = document.querySelectorAll('.department-rating-slider');
+    departmentSliders.forEach(slider => updateRangeProgress(slider));
+  }, [deptRatings]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -283,8 +295,14 @@ const FeedbackForm = () => {
         description: "",
         overallRating: 2,
       });
-    setDeptRatings(getDefaultDeptRatings(language));
+      setDeptRatings(getDefaultDeptRatings(language));
       setSelectedPoliceStation("");
+      
+      // Reset all range inputs visual state
+      setTimeout(() => {
+        const rangeInputs = document.querySelectorAll('input[type="range"]');
+        rangeInputs.forEach(input => updateRangeProgress(input));
+      }, 0);
 
     } catch (err) {
       const endTime = Date.now();
@@ -336,7 +354,14 @@ const FeedbackForm = () => {
 
   return (
     <div className="container py-4">
-      <div className="d-flex justify-content-end mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <img 
+            src="/maha-logo.png" 
+            alt="Maharashtra Government Logo" 
+            style={{ height: '80px', width: 'auto' }} 
+          />
+        </div>
         <select
           className="form-select w-auto"
           value={language}
