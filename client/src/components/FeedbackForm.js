@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../../src/App.css"
 
 const translations = {
   en: {
     // slogan: "Your Opinion Counts – Improving Ahilyanagar Police Services!",
     title: "Feedback",
-    fullName: "Full Name",
-    phone: "Phone Number",
+    fullName: "Full Name (optional)",
+    phone: "Phone Number (optional)",
     description: "Feedback",
     image: "Upload Image (Optional)",
     overallRating: "Overall Rating (1-10)",
@@ -32,9 +33,8 @@ const translations = {
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
     descriptionRequired: "Please enter your feedback.",
     slogans: [
-      "Ahilyanagar Police belives that – <b>\"Their is always scope for improve\"</b'",
-      "We are committed to serving the public. We are also ready to improve our services. So – <b>\"Do you have any suggestions?\"</b>",
-      "Through this dialogue between you and us,<br/><b>\"let's build a safe Ahilyanagar!\"</b>"
+      "We believe that – <span style='font-size: 1.5em; display: block;'><b>\"There is always scope for improvement\"</b'",
+      "We are committed to serve the people.So –<span style='font-size: 1.5em; display: block;'> <b>\"Do you want to say something?\"</b>"
     ],
     tableHeaders: {
       department: "Department",
@@ -46,8 +46,8 @@ const translations = {
   mr: {
     // slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
     title: "अभिप्राय",
-    fullName: "पूर्ण नाव",
-    phone: "फोन नंबर",
+    fullName: "पूर्ण नाव (वैकल्पिक)",
+    phone: "फोन नंबर (वैकल्पिक)",
     description: "अभिप्राय",
     image: "छायाचित्र अपलोड करा (पर्यायी)",
     overallRating: "एकूण रेटिंग (1-10)",
@@ -71,9 +71,8 @@ const translations = {
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
     descriptionRequired: "कृपया अभिप्राय नोंदवा.",
     slogans: [
-      "अहिल्यानगर पोलिसांना जाणीव आहे – <b><span style='font-size: 1.5em; display: block;'>\"सुधारणा ही निरंतर प्रक्रिया आहे.\"</span></b>",
-      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत. याच सेवेत सुधारणा करण्यासाठी आम्ही तयार आहोत. त्यासाठी – <b><span style='font-size: 1.5em; display: block;'>\"तुम्हाला काही सूचवायचं आहे का ?\"</span></b>",
-      "<b><span style='font-size: 1.5em; display: block;'>\"तुमच्या-आमच्या या सुसंवादातून घडवूया सुरक्षित अहिल्यानगर !\"</span></b>"
+      "आम्हाला जाणीव आहे – <b><span style='font-size: 1.5em; display: block;'>\"सुधारणा ही निरंतर प्रक्रिया आहे.\"</span></b>",
+      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत.त्यासाठी – <b><span style='font-size: 1.5em; display: block;'>\"तुम्हाला काही सूचवायचं आहे का ?\"</span></b>"
     ],    
     tableHeaders: {
       department: "विभाग",
@@ -251,7 +250,7 @@ const FeedbackForm = () => {
     }
 
     if (!selectedPoliceStation) {
-      toast.error("Please select a police station.", {
+      toast.error("Please select your police station.", {
         position: "top-center",
         autoClose: 5000,
         theme: "colored",
@@ -353,34 +352,162 @@ const FeedbackForm = () => {
   };
 
   return (
-    <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <img 
-            src="/maha-logo.png" 
-            alt="Maharashtra Government Logo" 
-            style={{ height: '80px', width: 'auto' }} 
-          />
-        </div>
-        <select
-          className="form-select w-auto"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="mr">मराठी</option>
-          <option value="en">English</option>
-        </select>
-      </div>
+    <div className="container">
+ <div className="d-flex flex-column flex-md-row justify-content-between align-items-center py-3 px-4 mb-4"
+     style={{
+       background: 'linear-gradient(to right, #ffffff, #f8fafc)',
+       boxShadow: '0 2px 15px rgba(10, 35, 98, 0.1)',
+       borderBottom: '3px solid #0A2362',
+       borderRadius: '0 0 8px 8px'
+     }}>
+
+  {/* Logo Section with hover effect */}
+  <div className="d-flex flex-column align-items-center align-items-md-start">
+    <div style={{
+      padding: '5px',
+      borderRadius: '6px',
+      transition: 'all 0.3s ease',
+      background: 'white',
+      boxShadow: '0 2px 8px rgba(10, 35, 98, 0.1)'
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.boxShadow = '0 4px 12px rgba(10, 35, 98, 0.15)';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = '';
+      e.currentTarget.style.boxShadow = '0 2px 8px rgba(10, 35, 98, 0.1)';
+    }}>
+      <img 
+        src="/maha-logo.png" 
+        alt="Maharashtra Government Logo" 
+        style={{ 
+          height: '120px', 
+          width: 'auto',
+          filter: 'drop-shadow(0 2px 4px rgba(10, 35, 98, 0.2))'
+        }} 
+      />
+    </div>
+
+    {/* Mobile Title */}
+    <h2 className="fw-bold mt-2 d-block d-md-none" 
+        style={{ 
+          color: '#0A2362',
+          fontSize: '1.4rem',
+          textShadow: '0 1px 3px rgba(10, 35, 98, 0.2)',
+          position: 'relative',
+          paddingBottom: '5px'
+        }}>
+      {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
+      <span style={{
+        position: 'absolute',
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '50%',
+        height: '2px',
+        background: '#0A2362',
+        borderRadius: '2px'
+      }}></span>
+    </h2>
+  </div>
+
+  {/* Desktop Title */}
+  <div className="d-none d-md-block text-center flex-grow-1">
+    <h2 className="fw-bold mb-0" 
+        style={{ 
+          color: '#0A2362',
+          fontSize: '1.8rem',
+          letterSpacing: '0.5px',
+          position: 'relative',
+          display: 'inline-block',
+          paddingBottom: '8px'
+        }}>
+      {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
+      <span style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: '3px',
+        background: 'linear-gradient(to right, #0A2362, #1a4a9a)',
+        borderRadius: '3px',
+        transform: 'scaleX(0)',
+        transformOrigin: 'left center',
+        transition: 'transform 0.3s ease'
+      }}
+      onMouseEnter={e => e.currentTarget.style.transform = 'scaleX(1)'}
+      onMouseLeave={e => e.currentTarget.style.transform = 'scaleX(0)'}></span>
+    </h2>
+    
+  </div>
+
+  {/* Enhanced Language Selector */}
+  <div className="mt-3 mt-md-0">
+    <div className="position-relative" style={{ minWidth: '120px' }}>
+      <select
+        className="form-select ps-4 pe-4 py-2"
+        value={language}
+        onChange={(e) => setLanguage(e.target.value)}
+        style={{ 
+          border: '2px solid rgba(10, 35, 98, 0.3)',
+          color: '#0A2362',
+          fontWeight: '600',
+          cursor: 'pointer',
+          borderRadius: '6px',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(4px)',
+          appearance: 'none',
+          paddingLeft: '2rem',
+          boxShadow: '0 2px 6px rgba(10, 35, 98, 0.1)',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = '#0A2362';
+          e.currentTarget.style.boxShadow = '0 3px 8px rgba(10, 35, 98, 0.15)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = 'rgba(10, 35, 98, 0.3)';
+          e.currentTarget.style.boxShadow = '0 2px 6px rgba(10, 35, 98, 0.1)';
+        }}
+        onFocus={e => {
+          e.currentTarget.style.borderColor = '#0A2362';
+          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(10, 35, 98, 0.2)';
+        }}
+        onBlur={e => {
+          e.currentTarget.style.boxShadow = '0 2px 6px rgba(10, 35, 98, 0.1)';
+        }}
+      >
+        <option value="mr">मराठी</option>
+        <option value="en">English</option>
+      </select>
+      <span className="position-absolute top-50 start-0 translate-middle-y ms-2"
+            style={{ color: '#0A2362', pointerEvents: 'none' }}>
+        
+      </span>
+    </div>
+  </div>
+</div>
+
       {/* Main Slogan Section (commented out) */}
        {/* <div className="text-center mb-3 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
          <h3 className="fw-bold" style={{ color: "#0A2362" }}>{t.slogan}</h3>
        </div> */}
       {/* Additional Slogans, each in their own box, with bolded phrases */}
-      {t.slogans && t.slogans.map((s, idx) => (
-        <div key={idx} className="text-center mb-3 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
-          <div style={{ color: "#0A2362", fontSize: "1.3rem" }} dangerouslySetInnerHTML={{ __html: s }} />
-        </div>
-      ))}
+{t.slogans && t.slogans.map((s, idx) => (
+  <div
+    key={idx}
+    className="slogan-box pt-10 text-center animate-fade-in"
+    style={{ animationDelay: `${idx * 0.2}s` }}
+  >
+    <div
+      className="slogan-text"
+      dangerouslySetInnerHTML={{ __html: s }}
+    />
+  </div>
+))}
+
+
       <h1 className="fw-bold text-center mb-4" style={{ color: "#0A2362" }}>
         {t.title}
       </h1>
@@ -422,7 +549,7 @@ const FeedbackForm = () => {
         </div>
         <div className="mb-4">
           <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {language === "mr" ? "तुमची पोलीस स्टेशन हद्द निवडा" : "Select your police station Boundary"} <span style={{ color: "red" }}>*</span>
+            {language === "mr" ? "तुमचे पोलीस स्टेशन निवडा" : "Select your police station"} <span style={{ color: "red" }}>*</span>
           </label>
           <select
             className="form-select"
@@ -476,14 +603,14 @@ const FeedbackForm = () => {
           />
           <div className="range-value">
             {formData.overallRating} / 10
-            {(() => {
+            {/* {(() => {
               const sentiment = getRatingSentiment(formData.overallRating);
               return (
                 <span style={{ marginLeft: 10, color: sentiment.color, fontSize: '0.80em' }}>
                   ( {sentiment.label} )
                 </span>
               );
-            })()}
+            })()} */}
           </div>
         </div>
 
@@ -518,14 +645,14 @@ const FeedbackForm = () => {
                     </td>
                     <td>
                       {dept.rating} / 10
-                      {(() => {
+                      {/* {(() => {
                         const sentiment = getRatingSentiment(dept.rating);
                         return (
                           <span style={{ marginLeft: 6, color: sentiment.color, fontSize: '0.85em' }}>
                             ({sentiment.label})
                           </span>
                         );
-                      })()}
+                      })()} */}
                     </td>
                     <td>
                       <input
