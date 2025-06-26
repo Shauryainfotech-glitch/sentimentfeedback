@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../../src/App.css"
+import "../../src/App.css";
 
 const translations = {
   en: {
-    // slogan: "Your Opinion Counts – Improving Ahilyanagar Police Services!",
     title: "Feedback",
     fullName: "Full Name (optional)",
     phone: "Phone Number (optional)",
@@ -22,10 +21,16 @@ const translations = {
     add: "Add",
     remove: "Remove",
     success: "Feedback submitted successfully.",
-    error: "There was an issue submitting your feedback. Please try again later.",
+    error:
+      "There was an issue submitting your feedback. Please try again later.",
     descriptionNote: "Express your feedback (max 50 words)",
-    departmentList: ["Traffic", "Women Safety", "Narcotic Drugs", "Cyber Crime"],
-    departmentRatingsHeading: "For department-wise rating, select a department below",
+    departmentList: [
+      "Traffic",
+      "Women Safety",
+      "Action against Narcotics",
+      "Cyber Crime",
+    ],
+    departmentRatingsHeading:"For department-wise rating, select a department below",
     rating: "Rating",
     alreadyRated: "department has already been rated",
     invalidPhone: "Please enter a valid 10-digit phone number.",
@@ -33,18 +38,17 @@ const translations = {
     fileTypeError: "Please select only image files (JPG, PNG, GIF, etc.)",
     descriptionRequired: "Please enter your feedback.",
     slogans: [
-      "We believe that – <span style='font-size: 1.5em; display: block;'><b>\"There is always scope for improvement\"</b'",
-      "We are committed to serve the people.So –<span style='font-size: 1.5em; display: block;'> <b>\"Do you want to say something?\"</b>"
+      "We believe that  <span style='font-size: 1.2em; display: block;'><b>\"There is always scope for improvement\"</b>",
+      "We are committed to serve the people<span style='font-size: 1.2em; display: block;'> <b>\"Do you want to say something?\"</b>",
     ],
     tableHeaders: {
       department: "Department",
       rating: "Rating",
       value: "Value",
-      select: "Select"
-    }
+      select: "Select",
+    },
   },
   mr: {
-    // slogan: "तुमचं मत महत्वाचं आहे – अहिल्यानगर पोलीस सेवा मजबूत करा!",
     title: "अभिप्राय",
     fullName: "पूर्ण नाव (वैकल्पिक)",
     phone: "फोन नंबर (वैकल्पिक)",
@@ -60,27 +64,33 @@ const translations = {
     add: "जोडा",
     remove: "काढा",
     success: "अभिप्राय यशस्वीरित्या पाठवला गेला.",
-    error: "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+    error:
+      "तुमचा अभिप्राय पाठवण्यात काही अडचण आली आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
     descriptionNote: "आपली अभिप्राय व्यक्त करा (कमाल ५० शब्दांची मर्यादा )",
-    departmentList: ["वाहतूक", "महिला सुरक्षा", "अमली पदार्थ विरुद्ध कारवाई", "सायबर गुन्हे"],
+    departmentList: [
+      "वाहतूक",
+      "महिला सुरक्षा",
+      "अमली पदार्थ विरुद्ध कारवाई",
+      "सायबर गुन्हे",
+    ],
     departmentRatingsHeading: "विभागानुसार रेटिंग साठी खालील विभाग निवडा",
     rating: "रेटिंग",
     alreadyRated: "विभाग आधीच निवडलेला आहे",
-    invalidPhone: "कृपया १० अंकी फोन नंबर टाका.", 
+    invalidPhone: "कृपया १० अंकी फोन नंबर टाका.",
     fileSizeError: "फाईलचा आकार १०MB पेक्षा कमी असणे आवश्यक आहे",
     fileTypeError: "कृपया फक्त छायाचित्र फाईल्स निवडा (JPG, PNG, GIF, इ.)",
     descriptionRequired: "कृपया अभिप्राय नोंदवा.",
     slogans: [
-      "आम्हाला जाणीव आहे – <b><span style='font-size: 1.5em; display: block;'>\"सुधारणा ही निरंतर प्रक्रिया आहे.\"</span></b>",
-      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत.त्यासाठी – <b><span style='font-size: 1.5em; display: block;'>\"तुम्हाला काही सूचवायचं आहे का ?\"</span></b>"
-    ],    
+      "आम्हाला जाणीव आहे  <b><span style='font-size: 1em; display: block;'>\"सुधारणा ही निरंतर प्रक्रिया आहे.\"</span></b>",
+      "जनतेला सेवा देण्यासाठी आम्ही कटिबद्ध आहोत<b><span style='font-size: 1em; display: block;'>\"तुम्हाला काही सूचवायचं आहे का ?\"</span></b>",
+    ],
     tableHeaders: {
       department: "विभाग",
       rating: "रेटिंग",
       value: "मूल्यांकन",
-      select: "निवडा"
-    }
-  }
+      select: "निवडा",
+    },
+  },
 };
 
 const policeStations = [
@@ -91,12 +101,12 @@ const policeStations = [
   { en: "Ghargaon", mr: "घारगाव" },
   { en: "Jamkhed", mr: "जामखेड" },
   { en: "Karjat", mr: "कर्जत" },
-  { en: "Kharda", mr: "खरडा" },
+  { en: "Kharda", mr: "खर्डा" },
   { en: "Kopargaon City", mr: "कोपरगाव शहर" },
   { en: "Kopargaon Rural", mr: "कोपरगाव ग्रामीण" },
   { en: "Kotwali", mr: "कोतवाली" },
   { en: "Loni", mr: "लोणी" },
-  { en: "MIDC", mr: "MIDC" },
+  { en: "MIDC (A.nagar)", mr: "एम आय डी सी (अ.नगर)" },
   { en: "Mirajgaon", mr: "मिरजगाव" },
   { en: "Nagar Taluka", mr: "नगर तालुका" },
   { en: "Newasa", mr: "नेवासा" },
@@ -115,7 +125,7 @@ const policeStations = [
   { en: "Shrirampur Rural", mr: "श्रीरामपूर ग्रामीण" },
   { en: "Sonai", mr: "सोनई" },
   { en: "Supa", mr: "सुपा" },
-  { en: "Tofkhana", mr: "तोफखाना" }
+  { en: "Tofkhana", mr: "तोफखाना" },
 ];
 
 const FeedbackForm = () => {
@@ -137,6 +147,16 @@ const FeedbackForm = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPoliceStation, setSelectedPoliceStation] = useState("");
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Function to update the visual progress bar of range inputs
   const updateRangeProgress = (rangeInput) => {
@@ -151,15 +171,15 @@ const FeedbackForm = () => {
   // Initialize range inputs and add event listeners
   useEffect(() => {
     const rangeInputs = document.querySelectorAll('input[type="range"]');
-    rangeInputs.forEach(input => {
+    rangeInputs.forEach((input) => {
       updateRangeProgress(input);
-      input.addEventListener('input', () => updateRangeProgress(input));
-      input.addEventListener('change', () => updateRangeProgress(input));
+      input.addEventListener("input", () => updateRangeProgress(input));
+      input.addEventListener("change", () => updateRangeProgress(input));
     });
     return () => {
-      rangeInputs.forEach(input => {
-        input.removeEventListener('input', () => updateRangeProgress(input));
-        input.removeEventListener('change', () => updateRangeProgress(input));
+      rangeInputs.forEach((input) => {
+        input.removeEventListener("input", () => updateRangeProgress(input));
+        input.removeEventListener("change", () => updateRangeProgress(input));
       });
     };
   }, []);
@@ -181,25 +201,29 @@ const FeedbackForm = () => {
       overallRating: 2,
     });
     setDeptRatings(getDefaultDeptRatings(language));
-    
+
     // Update range inputs after language change
     setTimeout(() => {
       const rangeInputs = document.querySelectorAll('input[type="range"]');
-      rangeInputs.forEach(input => updateRangeProgress(input));
+      rangeInputs.forEach((input) => updateRangeProgress(input));
     }, 0);
   }, [language]);
 
   useEffect(() => {
-    const overallRatingInput = document.querySelector('input[name="overallRating"]');
+    const overallRatingInput = document.querySelector(
+      'input[name="overallRating"]'
+    );
     if (overallRatingInput) {
       updateRangeProgress(overallRatingInput);
     }
   }, [formData.overallRating]);
-  
+
   // Update department rating sliders when they change
   useEffect(() => {
-    const departmentSliders = document.querySelectorAll('.department-rating-slider');
-    departmentSliders.forEach(slider => updateRangeProgress(slider));
+    const departmentSliders = document.querySelectorAll(
+      ".department-rating-slider"
+    );
+    departmentSliders.forEach((slider) => updateRangeProgress(slider));
   }, [deptRatings]);
 
   const handleChange = (e) => {
@@ -264,17 +288,19 @@ const FeedbackForm = () => {
     try {
       const payload = {
         ...formData,
-        departmentRatings: deptRatings.filter(d => d.checked).map(d => ({
-          department: d.department,
-          rating: d.rating,
-        })),
+        departmentRatings: deptRatings
+          .filter((d) => d.checked)
+          .map((d) => ({
+            department: d.department,
+            rating: d.rating,
+          })),
         policeStation: selectedPoliceStation,
       };
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/feedback`,
         payload,
         {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
@@ -296,24 +322,27 @@ const FeedbackForm = () => {
       });
       setDeptRatings(getDefaultDeptRatings(language));
       setSelectedPoliceStation("");
-      
+
       // Reset all range inputs visual state
       setTimeout(() => {
         const rangeInputs = document.querySelectorAll('input[type="range"]');
-        rangeInputs.forEach(input => updateRangeProgress(input));
+        rangeInputs.forEach((input) => updateRangeProgress(input));
       }, 0);
-
     } catch (err) {
       const endTime = Date.now();
       const submissionTime = endTime - startTime;
-      console.error(`❌ Feedback submission failed after ${submissionTime}ms:`, err);
+      console.error(
+        `❌ Feedback submission failed after ${submissionTime}ms:`,
+        err
+      );
 
       let errorMessage = t.error;
 
       if (err.response?.status === 413) {
-        errorMessage = language === "mr"
-          ? "फाईल खूप मोठी आहे. कृपया लहान फाईल निवडा."
-          : "File is too large. Please select a smaller file.";
+        errorMessage =
+          language === "mr"
+            ? "फाईल खूप मोठी आहे. कृपया लहान फाईल निवडा."
+            : "File is too large. Please select a smaller file.";
       }
 
       toast.error(errorMessage, {
@@ -327,372 +356,606 @@ const FeedbackForm = () => {
   };
 
   const handleDeptSlider = (idx, value) => {
-    setDeptRatings(ratings =>
-      ratings.map((r, i) =>
-        i === idx ? { ...r, rating: Number(value) } : r
-      )
+    setDeptRatings((ratings) =>
+      ratings.map((r, i) => (i === idx ? { ...r, rating: Number(value) } : r))
     );
   };
 
   const handleDeptCheck = (idx, checked) => {
-    setDeptRatings(ratings =>
-      ratings.map((r, i) =>
-        i === idx ? { ...r, checked } : r
-      )
+    setDeptRatings((ratings) =>
+      ratings.map((r, i) => (i === idx ? { ...r, checked } : r))
     );
   };
 
-  // Helper for overall rating sentiment
-  const getRatingSentiment = (rating) => {
-    const num = Number(rating);
-    if (num >= 1 && num <= 4) return { label: language === 'mr' ? 'निगेटिव्ह' : 'Negative', color: 'red' };
-    if (num >= 5 && num <= 6) return { label: language === 'mr' ? 'न्यूट्रल' : 'Neutral', color: 'orange' };
-    if (num >= 7 && num <= 10) return { label: language === 'mr' ? 'पॉझिटिव्ह' : 'Positive', color: 'green' };
-    return { label: '', color: '' };
-  };
-
   return (
-    <div className="container">
- <div className="d-flex flex-column flex-md-row justify-content-between align-items-center py-3 px-4 mb-4"
-     style={{
-       background: 'linear-gradient(to right, #ffffff, #f8fafc)',
-       boxShadow: '0 2px 15px rgba(10, 35, 98, 0.1)',
-       borderBottom: '3px solid #0A2362',
-       borderRadius: '0 0 8px 8px'
-     }}>
+    <div className="container-fluid px-0">
+      {/* Enhanced Header with Gradient and Subtle Animation */}
+      <header
+  className="sticky-top"
+  style={{
+    background: "linear-gradient(135deg, #0A2362 0%, #1a4a9a 100%)",
+    boxShadow: "0 4px 20px rgba(10, 35, 98, 0.3)",
+    borderBottom: "3px solid #FFD700",
+    zIndex: 1000,
+  }}
+>
+  <div className="container">
+    <div className="d-flex flex-wrap justify-content-between align-items-center py-2 py-md-3">
+      {/* Logo - Left aligned */}
+      <div className="d-flex align-items-center order-1 order-md-1" style={{ flex: '0 0 auto' }}>
+        <div
+          className="logo-container"
+          style={{
+            padding: "6px",
+            borderRadius: "6px",
+            transition: "all 0.3s ease",
+            background: "rgba(255,255,255,0.9)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+            transformStyle: "preserve-3d",
+            perspective: "1000px"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-3px) rotateY(10deg)";
+            e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "";
+            e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
+          }}
+        >
+          <img
+            src="/maha-logo.png"
+            alt="Maharashtra Government Logo"
+            style={{
+              height: windowWidth < 768 ? "40px" : "80px",
+              width: "auto",
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+              transition: "transform 0.3s ease"
+            }}
+          />
+        </div>
+      </div>
 
-  {/* Logo Section with hover effect */}
-  <div className="d-flex flex-column align-items-center align-items-md-start">
-    <div style={{
-      padding: '5px',
-      borderRadius: '6px',
-      transition: 'all 0.3s ease',
-      background: 'white',
-      boxShadow: '0 2px 8px rgba(10, 35, 98, 0.1)'
-    }}
-    onMouseEnter={e => {
-      e.currentTarget.style.transform = 'translateY(-2px)';
-      e.currentTarget.style.boxShadow = '0 4px 12px rgba(10, 35, 98, 0.15)';
-    }}
-    onMouseLeave={e => {
-      e.currentTarget.style.transform = '';
-      e.currentTarget.style.boxShadow = '0 2px 8px rgba(10, 35, 98, 0.1)';
-    }}>
-      <img 
-        src="/maha-logo.png" 
-        alt="Maharashtra Government Logo" 
-        style={{ 
-          height: '120px', 
-          width: 'auto',
-          filter: 'drop-shadow(0 2px 4px rgba(10, 35, 98, 0.2))'
-        }} 
-      />
+      {/* Language Selector - Right aligned (top on mobile) */}
+      <div className="order-3 order-md-3 mt-0 ms-auto ms-md-0" style={{ flex: '0 0 auto' }}>
+        <div className="position-relative" style={{ 
+          minWidth: windowWidth < 768 ? "90px" : "120px"
+        }}>
+          <select
+            className="form-select ps-3 pe-4 py-1"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            style={{
+              border: "2px solid rgba(255,255,255,0.3)",
+              color: "#0A2362",
+              fontWeight: "600",
+              cursor: "pointer",
+              borderRadius: "30px",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              backdropFilter: "blur(4px)",
+              appearance: "none",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+              transition: "all 0.3s ease",
+              backgroundImage: `url(${language === "mr" ? "/india-flag.png" : "/uk-flag.png"}), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230A2362' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat, no-repeat",
+              backgroundPosition: `
+                ${windowWidth < 768 ? "5px" : "8px"} center,
+                calc(100% - ${windowWidth < 768 ? "8px" : "15px"}) center
+              `,
+              backgroundSize: "16px, 16px",
+              paddingRight: windowWidth < 768 ? "25px" : "35px",
+              paddingLeft: windowWidth < 768 ? "25px" : "35px",
+              width: windowWidth < 768 ? "auto" : "100%"
+            }}
+          >
+            <option value="mr">मराठी</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Centered Title - Middle */}
+      <div className="order-2 order-md-2 text-center mx-2 mx-md-4" style={{ 
+        flex: '1 1 auto',
+        minWidth: 0, // Prevent text overflow
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        padding: '5px 0' // Add some vertical padding
+      }}>
+        <h2
+          className="fw-bold mb-0 text-white"
+          style={{
+            fontSize: windowWidth < 768 ? "1.2rem" : 
+                    windowWidth < 992 ? "1.5rem" : "1.8rem",
+            letterSpacing: "0.5px",
+            position: "relative",
+            display: "inline-block",
+            textShadow: "1px 1px 3px rgba(0,0,0,0.3)",
+            maxWidth: '100%',
+            lineHeight: '1.2',
+            padding: '0 5px',
+            margin: 0
+          }}
+        >
+          {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
+          <span
+            style={{
+              position: "absolute",
+              bottom: "-5px",
+              left: 0,
+              width: "100%",
+              height: "3px",
+              background: "linear-gradient(to right, #FFD700, #FFFFFF)",
+              borderRadius: "3px",
+              transform: "scaleX(0)",
+              transformOrigin: "left center",
+              transition: "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            }}
+          ></span>
+        </h2>
+      </div>
     </div>
-
-    {/* Mobile Title */}
-    <h2 className="fw-bold mt-2 d-block d-md-none" 
-        style={{ 
-          color: '#0A2362',
-          fontSize: '1.4rem',
-          textShadow: '0 1px 3px rgba(10, 35, 98, 0.2)',
-          position: 'relative',
-          paddingBottom: '5px'
-        }}>
-      {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
-      <span style={{
-        position: 'absolute',
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '50%',
-        height: '2px',
-        background: '#0A2362',
-        borderRadius: '2px'
-      }}></span>
-    </h2>
   </div>
+</header>
 
-  {/* Desktop Title */}
-  <div className="d-none d-md-block text-center flex-grow-1">
-    <h2 className="fw-bold mb-0" 
-        style={{ 
-          color: '#0A2362',
-          fontSize: '1.8rem',
-          letterSpacing: '0.5px',
-          position: 'relative',
-          display: 'inline-block',
-          paddingBottom: '8px'
-        }}>
-      {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
-      <span style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: '3px',
-        background: 'linear-gradient(to right, #0A2362, #1a4a9a)',
-        borderRadius: '3px',
-        transform: 'scaleX(0)',
-        transformOrigin: 'left center',
-        transition: 'transform 0.3s ease'
-      }}
-      onMouseEnter={e => e.currentTarget.style.transform = 'scaleX(1)'}
-      onMouseLeave={e => e.currentTarget.style.transform = 'scaleX(0)'}></span>
-    </h2>
-    
-  </div>
-
-  {/* Enhanced Language Selector */}
-  <div className="mt-3 mt-md-0">
-    <div className="position-relative" style={{ minWidth: '120px' }}>
-      <select
-        className="form-select ps-4 pe-4 py-2"
-        value={language}
-        onChange={(e) => setLanguage(e.target.value)}
-        style={{ 
-          border: '2px solid rgba(10, 35, 98, 0.3)',
-          color: '#0A2362',
-          fontWeight: '600',
-          cursor: 'pointer',
-          borderRadius: '6px',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(4px)',
-          appearance: 'none',
-          paddingLeft: '2rem',
-          boxShadow: '0 2px 6px rgba(10, 35, 98, 0.1)',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.borderColor = '#0A2362';
-          e.currentTarget.style.boxShadow = '0 3px 8px rgba(10, 35, 98, 0.15)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.borderColor = 'rgba(10, 35, 98, 0.3)';
-          e.currentTarget.style.boxShadow = '0 2px 6px rgba(10, 35, 98, 0.1)';
-        }}
-        onFocus={e => {
-          e.currentTarget.style.borderColor = '#0A2362';
-          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(10, 35, 98, 0.2)';
-        }}
-        onBlur={e => {
-          e.currentTarget.style.boxShadow = '0 2px 6px rgba(10, 35, 98, 0.1)';
+      {/* Main Content with Subtle Background Pattern */}
+      <main
+        className="py-3 py-md-4"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(240, 244, 255, 0.8), rgba(255, 255, 255, 1))",
+          minHeight: "calc(100vh - 150px)",
         }}
       >
-        <option value="mr">मराठी</option>
-        <option value="en">English</option>
-      </select>
-      <span className="position-absolute top-50 start-0 translate-middle-y ms-2"
-            style={{ color: '#0A2362', pointerEvents: 'none' }}>
-        
-      </span>
-    </div>
+        <div className="container">
+          {/* Animated Slogans Carousel */}
+          <div className="mb-2 mb-md-3">  {/* Reduced bottom margin */}
+  <div className="slogan-carousel">
+    {t.slogans &&
+      t.slogans.map((s, idx) => (
+        <div
+          key={idx}
+          className="slogan-item text-center p-1 p-md-2 mb-1 mb-md-2 animate__animated animate__fadeIn" 
+          style={{
+            animationDelay: `${idx * 0.2}s`,
+            background: "rgba(255,255,255,0.9)",
+            borderRadius: "6px",  
+            boxShadow: "0 2px 8px rgba(10, 35, 98, 0.1)", 
+            borderLeft: "3px solid #0A2362", 
+            transition: "all 0.3s ease",
+          
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";  
+            e.currentTarget.style.boxShadow =
+              "0 4px 12px rgba(10, 35, 98, 0.15)"; 
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "";
+            e.currentTarget.style.boxShadow =
+              "0 2px 8px rgba(10, 35, 98, 0.1)";
+          }}
+        >
+          <div
+            className="slogan-text fw-medium"
+            style={{
+              color: "#0A2362",
+              fontSize:
+                windowWidth < 768
+                  ? "0.8rem"  
+                  : windowWidth < 992
+                  ? "0.9rem"
+                  : "1.3rem",
+            }}
+            dangerouslySetInnerHTML={{ __html: s }}
+          />
+        </div>
+      ))}
   </div>
 </div>
 
-      {/* Main Slogan Section (commented out) */}
-       {/* <div className="text-center mb-3 p-3" style={{ backgroundColor: "#f0f4ff", borderRadius: "5px", borderLeft: "5px solid #0A2362" }}>
-         <h3 className="fw-bold" style={{ color: "#0A2362" }}>{t.slogan}</h3>
-       </div> */}
-      {/* Additional Slogans, each in their own box, with bolded phrases */}
-{t.slogans && t.slogans.map((s, idx) => (
-  <div
-    key={idx}
-    className="slogan-box pt-10 text-center animate-fade-in"
-    style={{ animationDelay: `${idx * 0.2}s` }}
+          {/* Form Section with Floating Label Effect */}
+          <div className="row justify-content-center">
+            <div className="col-12 col-lg-10 col-xl-8">
+              <div
+                className="card border-0 shadow overflow-hidden"
+                style={{
+                  borderRadius: windowWidth < 768 ? "12px" : "15px",
+                  borderTop: "5px solid #0A2362",
+                }}
+              >
+                <div
+                  className="card-header py-2 py-md-3"
+                  style={{
+                    background: "linear-gradient(to right, #0A2362, #1a4a9a)",
+                    color: "white",
+                  }}
+                >
+                  <h1 className="h4 h-md-3 mb-0 text-center fw-bold">
+                    <i className="fas fa-comment-alt me-2"></i>
+                    {t.title}
+                  </h1>
+                </div>
+
+                <form
+                  onSubmit={handleSubmit}
+                  encType="multipart/form-data"
+                  className="card-body p-3 p-md-4 p-lg-5"
+                >
+                  {/* Personal Information Section */}
+                  <div className="mb-4 mb-md-5">
+                    <h5
+                      className="fw-bold mb-3 mb-md-4"
+                      style={{ color: "#0A2362" }}
+                    >
+                      <i className="fas fa-user-circle me-2"></i>
+                      {language === "mr"
+                        ? "वैयक्तिक माहिती"
+                        : "Personal Information"}
+                    </h5>
+
+                    <div className="row g-3">
+                      <div className="col-12 col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="text"
+                            name="name"
+                            id="nameInput"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="form-control"
+                            placeholder={t.namePlaceholder}
+                            style={{
+                              borderLeft: "3px solid #0A2362",
+                              borderRadius: "0 5px 5px 0",
+                            }}
+                          />
+                          <label
+                            htmlFor="nameInput"
+                            style={{ color: "#6c757d" }}
+                          >
+                            {t.fullName} 
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="col-12 col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="tel"
+                            name="phone"
+                            id="phoneInput"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="form-control"
+                            placeholder={t.phonePlaceholder}
+                            maxLength={10}
+                            inputMode="numeric"
+                            style={{
+                              borderLeft: "3px solid #0A2362",
+                              borderRadius: "0 5px 5px 0",
+                            }}
+                          />
+                          <label
+                            htmlFor="phoneInput"
+                            style={{ color: "#6c757d" }}
+                          >
+                            {t.phone} 
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="col-12">
+                        <div className="form-floating">
+  <select
+    className="form-select"
+    name="policeStation"
+    id="policeStationSelect"
+    value={selectedPoliceStation}
+    onChange={handleChange}
+    required
+    style={{
+      borderLeft: "3px solid #0A2362",
+      borderRadius: "0 5px 5px 0",
+      paddingTop: "1.625rem",
+      paddingBottom: "0.625rem", // Added bottom padding
+      height: "calc(3.5rem + 2px)", // Explicit height
+    }}
   >
-    <div
-      className="slogan-text"
-      dangerouslySetInnerHTML={{ __html: s }}
-    />
+    <option value=""></option>
+    {policeStations.map((station, i) => (
+      <option key={i} value={station.en}>
+        {language === "mr" ? station.mr : station.en}
+      </option>
+    ))}
+  </select>
+  <label
+    htmlFor="policeStationSelect"
+    style={{
+      color: "#6c757d",
+      paddingTop: "0.5rem", // Added padding to label
+      paddingBottom: "0.5rem", // Added padding to label
+      height: "auto", // Allow label to expand
+    }}
+  >
+    {language === "mr"
+      ? "तुमचे पोलीस स्टेशन निवडा"
+      : "Select your police station"}
+    <span className="text-danger">*</span>
+  </label>
+</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Feedback Section */}
+                  <div className="mb-4 mb-md-5">
+                    <h5
+                      className="fw-bold mb-3 mb-md-4"
+                      style={{ color: "#0A2362" }}
+                    >
+                      <i className="fas fa-edit me-2"></i>
+                      {language === "mr" ? "तुमचा अभिप्राय" : "Your Feedback"}
+                    </h5>
+
+                    <div className="form-floating mb-3 mb-md-4">
+                      <textarea
+                        name="description"
+                        id="descriptionTextarea"
+                        value={formData.description}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder={t.descriptionPlaceholder}
+                        style={{
+                          height: windowWidth < 768 ? "100px" : "120px",
+                          borderLeft: "3px solid #0A2362",
+                          borderRadius: "0 5px 5px 0",
+                        }}
+                      ></textarea>
+                      <label
+                        htmlFor="descriptionTextarea"
+                        style={{ color: "#6c757d" }}
+                      >
+                        {t.description} <span className="text-danger">*</span>
+                      </label>
+                      <div className="d-flex justify-content-between mt-2">
+                        <small
+                          className="text-muted"
+                          style={{
+                            fontSize: windowWidth < 768 ? "0.75rem" : "0.85rem",
+                          }}
+                        >
+                          {t.descriptionNote}
+                        </small>
+                        <small
+                          className="text-muted"
+                          style={{
+                            fontSize: windowWidth < 768 ? "0.75rem" : "0.85rem",
+                          }}
+                        >
+                          {
+                            formData.description
+                              .trim()
+                              .split(/\s+/)
+                              .filter(Boolean).length
+                          }{" "}
+                          / 50 {language === "mr" ? "शब्द" : "words"}
+                        </small>
+                      </div>
+                    </div>
+
+                    {/* Overall Rating with Interactive Stars */}
+                    <div className="mb-3 mb-md-4">
+                      <label
+                        className="form-label fw-bold d-block mb-2 mb-md-3"
+                        style={{ color: "#0A2362" }}
+                      >
+                        {t.overallRating} <span className="text-danger">*</span>
+                      </label>
+                      <div className="d-flex align-items-center">
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          name="overallRating"
+                          value={formData.overallRating}
+                          onChange={handleChange}
+                          className="form-range flex-grow-1 me-2 me-md-3"
+                          style={{
+                            height: windowWidth < 768 ? "6px" : "8px",
+                            cursor: "pointer",
+                          }}
+                        />
+                        <div
+                          className="rating-display text-center px-2 px-md-3 py-1 py-md-2 rounded"
+                          style={{
+                            minWidth: windowWidth < 768 ? "70px" : "80px",
+                            background: "#0A2362",
+                            color: "white",
+                            fontWeight: "bold",
+                            transition: "all 0.3s ease",
+                            fontSize: windowWidth < 768 ? "0.85rem" : "1rem",
+                          }}
+                        >
+                          {formData.overallRating} / 10
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Department Ratings - Enhanced Table */}
+ <div className="mb-3 mb-md-4">
+  <h5 className="fw-bold mb-2 mb-md-3" style={{ color: "#0A2362", fontSize: windowWidth < 768 ? "1rem" : "1.25rem" }}>
+    <i className="fas fa-list-alt me-1 me-md-2"></i>
+    {t.departmentRatingsHeading}
+  </h5>
+
+  <div className="table-responsive">
+    <table className="table table-hover mb-0" style={{ fontSize: windowWidth < 768 ? "0.75rem" : "0.9rem" }}>
+      <thead>
+        <tr style={{ background: "#0A2362", color: "white" }}>
+          <th style={{ width: "5%", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>#</th>
+          <th style={{ minWidth: windowWidth < 768 ? "80px" : "120px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+            {t.tableHeaders.department}
+          </th>
+          <th style={{ minWidth: windowWidth < 768 ? "80px" : "150px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+            {t.tableHeaders.rating}
+          </th>
+          <th style={{ minWidth: windowWidth < 768 ? "40px" : "80px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+            {t.tableHeaders.value}
+          </th>
+          <th style={{ width: windowWidth < 768 ? "30px" : "50px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }} className="text-center">
+            {t.tableHeaders.select}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {deptRatings.map((dept, idx) => (
+          <tr key={idx} style={{ verticalAlign: "middle" }}>
+            <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>{idx + 1}</td>
+            <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+              {dept.department}
+            </td>
+            <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+              <div className="d-flex align-items-center">
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={dept.rating}
+                  onChange={(e) => handleDeptSlider(idx, e.target.value)}
+                  className="form-range me-1 me-md-2"
+                  style={{
+                    height: windowWidth < 768 ? "3px" : "5px",
+                    cursor: "pointer",
+                    minWidth: windowWidth < 768 ? "60px" : "100px"
+                  }}
+                />
+              </div>
+            </td>
+            <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+              <span
+                className="badge rounded-pill px-1 py-0"
+                style={{
+                  background: "#0A2362",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {dept.rating}/10
+              </span>
+            </td>
+            <td className="text-center" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+              <div className="form-check form-switch d-flex justify-content-center m-0">
+                <input
+                  className="form-check-input m-0"
+                  type="checkbox"
+                  role="switch"
+                  checked={dept.checked}
+                  onChange={(e) => handleDeptCheck(idx, e.target.checked)}
+                  style={{
+                    width: windowWidth < 768 ? "1.8em" : "2.5em",
+                    height: windowWidth < 768 ? "1em" : "1.3em",
+                    cursor: "pointer",
+                    backgroundColor: dept.checked ? "#0A2362" : ""
+                  }}
+                />
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
-))}
+</div>
+                  {/* Submit Button with Animation */}
+                  <div className="text-center mt-3 mt-md-4">
+                    <button
+                      className="btn btn-lg px-4 px-md-5 py-2 py-md-3 fw-bold"
+                      style={{
+                        background:
+                          "linear-gradient(to right, #0A2362, #1a4a9a)",
+                        color: "white",
+                        borderRadius: "50px",
+                        border: "none",
+                        boxShadow: "0 4px 15px rgba(10, 35, 98, 0.3)",
+                        position: "relative",
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        minWidth: windowWidth < 768 ? "160px" : "200px",
+                        fontSize: windowWidth < 768 ? "0.9rem" : "1rem",
+                      }}
+                      type="submit"
+                      disabled={isSubmitting}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "linear-gradient(to right, #1a4a9a, #0A2362)";
+                        e.currentTarget.style.boxShadow =
+                          "0 6px 20px rgba(10, 35, 98, 0.4)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "linear-gradient(to right, #0A2362, #1a4a9a)";
+                        e.currentTarget.style.boxShadow =
+                          "0 4px 15px rgba(10, 35, 98, 0.3)";
+                        e.currentTarget.style.transform = "";
+                      }}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          {language === "mr" ? "पाठवत आहे..." : "Submitting..."}
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-paper-plane me-2"></i>
+                          {t.submit}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
 
-
-      <h1 className="fw-bold text-center mb-4" style={{ color: "#0A2362" }}>
-        {t.title}
-      </h1>
-
-      <form
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-        className="card p-4"
+      {/* Footer */}
+      <footer
+        className="py-3 py-md-4 mt-4 mt-md-5"
+        style={{
+          background: "linear-gradient(135deg, #0A2362 0%, #1a4a9a 100%)",
+          color: "white",
+        }}
       >
-        <div className="row mb-4">
-          <div className="col-md-6">
-            <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-              {t.fullName}
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="form-control"
-              placeholder={t.namePlaceholder}
-            />
-          </div>
-          <div className="col-md-6">
-            <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-              {t.phone}
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="form-control"
-              placeholder={t.phonePlaceholder}
-              maxLength={10}
-              inputMode="numeric"
-            />
+        <div className="container">
+          <div className="row justify-content-center">
+            {" "}
+            {/* Added justify-content-center */}
+            <div className="col-12 text-center">
+              {" "}
+              {/* Changed to col-12 and text-center */}
+              <p
+                className="mb-0"
+                style={{ fontSize: windowWidth < 768 ? "0.85rem" : "1rem" }}
+              >
+                <i className="fas fa-copyright me-2"></i>
+                {new Date().getFullYear()}{" "}
+                {language === "mr" ? "अहिल्यानगर पोलीस" : "Ahilyanagar Police"}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="mb-4">
-          <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {language === "mr" ? "तुमचे पोलीस स्टेशन निवडा" : "Select your police station"} <span style={{ color: "red" }}>*</span>
-          </label>
-          <select
-            className="form-select"
-            name="policeStation"
-            value={selectedPoliceStation}
-            onChange={handleChange}
-            required
-          >
-            <option value="">{language === "mr" ? "पोलीस स्टेशन निवडा" : "Select Police Station"}</option>
-            {policeStations.map((station, i) => (
-              <option key={i} value={station.en}>
-                {language === "mr" ? station.mr : station.en}
-              </option>
-            ))}
-          </select>
-        </div>
+      </footer>
 
-        <div className="mb-4">
-          <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {t.description} <span style={{ color: "red" }}>*</span>
-          </label>
-          <div className="form-text mb-2" style={{ color: "#757575" }}>
-            {t.descriptionNote}
-          </div>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="form-control"
-            placeholder={t.descriptionPlaceholder}
-            rows="4"
-          ></textarea>
-          <div className="form-text text-end text-muted mt-1">
-            {formData.description.trim().split(/\s+/).filter(Boolean).length} / 50{" "}
-            {language === "mr" ? "शब्द" : "words"}
-          </div>
-        </div>
 
-        <div className="mb-4">
-          <label className="form-label fw-bold" style={{ color: "#0A2362" }}>
-            {t.overallRating} <span style={{ color: "red" }}>*</span>
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="10"
-            name="overallRating"
-            value={formData.overallRating}
-            onChange={handleChange}
-            className="form-range"
-          />
-          <div className="range-value">
-            {formData.overallRating} / 10
-            {/* {(() => {
-              const sentiment = getRatingSentiment(formData.overallRating);
-              return (
-                <span style={{ marginLeft: 10, color: sentiment.color, fontSize: '0.80em' }}>
-                  ( {sentiment.label} )
-                </span>
-              );
-            })()} */}
-          </div>
-        </div>
-
-        <div className="mb-4 border rounded p-3 bg-light">
-          <label className="form-label fw-bold mb-2" style={{ color: "#0A2362" }}>
-            {t.departmentRatingsHeading}
-          </label>
-          <div style={{overflowX: 'auto'}}>
-            <table className="table mb-0" style={{ background: 'transparent' }}>
-              <thead>
-                <tr>
-                  <th style={{minWidth: 120}}>{t.tableHeaders.department}</th>
-                  <th style={{minWidth: 200}}>{t.tableHeaders.rating}</th>
-                  <th style={{minWidth: 120}}>{t.tableHeaders.value}</th>
-                  <th style={{minWidth: 60}}>{t.tableHeaders.select}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deptRatings.map((dept, idx) => (
-                  <tr key={idx}>
-                    <td className="fw-bold">{idx + 1}. {dept.department}</td>
-                    <td>
-                      <input
-                        type="range"
-                        min="1"
-                        max="10"
-                        value={dept.rating}
-                        onChange={e => handleDeptSlider(idx, e.target.value)}
-                        className="form-range department-rating-slider"
-                        style={{ minWidth: 120 }}
-                      />
-                    </td>
-                    <td>
-                      {dept.rating} / 10
-                      {/* {(() => {
-                        const sentiment = getRatingSentiment(dept.rating);
-                        return (
-                          <span style={{ marginLeft: 6, color: sentiment.color, fontSize: '0.85em' }}>
-                            ({sentiment.label})
-                          </span>
-                        );
-                      })()} */}
-                    </td>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={dept.checked}
-                        onChange={e => handleDeptCheck(idx, e.target.checked)}
-                        style={{ width: 22, height: 22, accentColor: '#0A2362' }}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="text-end">
-          <button
-            className="btn"
-            style={{
-              backgroundColor: "#0A2362",
-              color: "white",
-              padding: "10px 30px",
-            }}
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                {language === "mr" ? "पाठवत आहे..." : "Submitting..."}
-              </>
-            ) : (
-              t.submit
-            )}
-          </button>
-        </div>
-      </form>
-
-      <ToastContainer />
     </div>
   );
 };

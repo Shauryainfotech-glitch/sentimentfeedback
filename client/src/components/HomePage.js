@@ -2,6 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const HomePage = () => {
   const navigate = useNavigate();
 
@@ -32,6 +35,9 @@ const HomePage = () => {
             <QRCodeCanvas value={formUrl} size={180} />
           </div>
         </div>
+
+
+      
       </div>
     </div>
   );

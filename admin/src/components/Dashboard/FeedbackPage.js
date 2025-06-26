@@ -8,7 +8,7 @@ import { faEye, faTimes, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 // API base URL
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Police station list with translations
+// Police station list with translations    
 export const policeStations = [
   { en: "Akole", mr: "अकोले" },
   { en: "Ashwi", mr: "अश्वी" },
@@ -429,64 +429,100 @@ const FeedbackPage = () => {
       ) : (
         <div className="feedback-grid">
           {visibleFeedbacks.map((feedback) => (
-            <div key={`${feedback.id}-${currentLanguage}`} className={`feedback-card ${feedback.status === 'new' ? 'new-feedback' : ''}`}>
-              <div className="feedback-card-header">
-                <div className="feedback-header-content">
-                  <h3>{feedback.subject || t('feedback', 'Feedback')}</h3>
-                  <div className="feedback-meta">
-                    <span className="feedback-date">{formatDate(feedback.createdAt || feedback.date)}</span>
-                    {feedback.status === 'new' && <span className="feedback-status new">{t('new', 'New')}</span>}
-                  </div>
-                </div>
-                <div className="feedback-rating">
-                  <div className="rating-label">{t('rating', 'Rating:')}</div>
-                  <div className="stars-container">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < getOverallRatingStars(feedback.overallRating || feedback.rating) ? "star filled" : "star"}>★</span>
-                    ))}
-                  </div>
-                  {feedback.overallRating !== undefined && (
-                    <span className="overall-rating-number">{feedback.overallRating}/10</span>
-                  )}
-                </div>
-              </div>
+           <div key={`${feedback.id}-${currentLanguage}`} className={`feedback-card ${feedback.status === 'new' ? 'new-feedback' : ''}`}>
+  <div className="feedback-card-header">
+    <div className="feedback-header-content">
+      <h3>{feedback.subject || t('feedback', 'Feedback')}</h3>
+      <div className="feedback-meta">
+        <span className="feedback-date">{formatDate(feedback.createdAt || feedback.date)}</span>
+        {feedback.status === 'new' && <span className="feedback-status new">{t('new', 'New')}</span>}
+      </div>
+    </div>
+  </div>
 
-              <div className="feedback-card-body">
-                <div className="feedback-sender-details">
-                  <div className="feedback-sender">
-                    <strong>{feedback.name}</strong>
-                  </div>
-                  {feedback.phone && (
-                    <div className="feedback-phone">
-                      <FontAwesomeIcon icon={faPhoneAlt} className="phone-icon" /> {feedback.phone}
-                    </div>
-                  )}
-                  {feedback.email && (
-                    <div className="feedback-email">
-                      {feedback.email}
-                    </div>
-                  )}
-                  {feedback.policeStation && (
-                    <div className="feedback-police-station">
-                      <strong>{t('policeStation', 'Police Station')}:</strong> {getLocalizedStationName(feedback.policeStation)}
-                    </div>
-                  )}
-                </div>
-                
-                {feedback.description || feedback.message ? (
-                  <div className="feedback-description">
-                    <p className="feedback-message">{feedback.description || feedback.message}</p>
-                  </div>
-                ) : null}
-                
-                {/* Department ratings */}
-                {renderDepartmentRatings(feedback.departmentRatings)}
-              </div>
-              
-              <div className="feedback-card-footer">
-             
-              </div>
-            </div>
+ <div className="feedback-card-body">
+  <div className="feedback-sender-details">
+    <div className="feedback-sender">
+      <strong>
+        {feedback.name ? 
+          feedback.name.charAt(0).toUpperCase() + feedback.name.slice(1).toLowerCase() 
+          : '-'}
+      </strong>
+    </div>
+    
+    <div className="feedback-phone">
+      <FontAwesomeIcon icon={faPhoneAlt} className="phone-icon" /> 
+      {feedback.phone ? feedback.phone : '-'}
+    </div>
+    <div className="feedback-police-station">
+      <strong>{t('policeStation', 'Police Station')}:</strong> 
+      {feedback.policeStation ? getLocalizedStationName(feedback.policeStation) : '-'}
+    </div>
+  </div>
+  
+  <div className="feedback-description">
+    <p className="feedback-message">
+      {feedback.description || feedback.message || '-'}
+    </p>
+  </div>
+  
+  {/* Overall Rating Section */}
+  <div className="overall-rating-section" style={{
+    margin: "1rem 0",
+    padding: "0.75rem",
+    background: "rgba(10, 35, 98, 0.05)",
+    borderRadius: "8px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "0.5rem"
+  }}>
+    <span className="rating-label" style={{
+      fontWeight: "600",
+      color: "#0A2362"
+    }}>
+      {t('overallRating', 'Overall Rating')}:
+    </span>
+    <span className="overall-rating-number" style={{
+      fontWeight: "600",
+      color: feedback.overallRating !== undefined ? getRatingColor(Number(feedback.overallRating)) : "#0A2362"
+    }}>
+      {feedback.overallRating !== undefined ? `${feedback.overallRating}/10` : '-'}
+      {feedback.overallRating >= 1 && feedback.overallRating <= 4 && (
+        <span style={{ marginLeft: '8px', color: '#F44336' }}>
+          ({currentLanguage === 'mr' ? 'नकारात्मक' : 'Negative'})
+        </span>
+      )}
+      {feedback.overallRating >= 5 && feedback.overallRating <= 6 && (
+        <span style={{ marginLeft: '8px', color: '#FF9800' }}>
+          ({currentLanguage === 'mr' ? 'तटस्थ' : 'Neutral'})
+        </span>
+      )}
+      {feedback.overallRating >= 7 && feedback.overallRating <= 10 && (
+        <span style={{ marginLeft: '8px', color: '#4CAF50' }}>
+          ({currentLanguage === 'mr' ? 'सकारात्मक' : 'Positive'})
+        </span>
+      )}
+    </span>
+  </div>
+  
+  {/* Department ratings */}
+  {feedback.departmentRatings && feedback.departmentRatings.length > 0 ? (
+    renderDepartmentRatings(feedback.departmentRatings)
+  ) : (
+    <div className="department-ratings">
+      <h4 className="department-ratings-title">{t('departmentRatings', 'Department Ratings')}</h4>
+      <div className="department-ratings-list">
+        <div className="department-rating-item">-</div>
+      </div>
+    </div>
+  )}
+</div>
+  
+  <div className="feedback-card-footer">
+    {/* Footer content */}
+  </div>
+</div>
           ))}
         </div>
       )}

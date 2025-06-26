@@ -35,13 +35,6 @@ const getRatingColor = (rating) => {
   return '#F44336'; // Red for low ratings
 };
 
-
-// Month names will be translated using i18n
-const getMonthNames = (t) => [
-  t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), t('Jun'),
-  t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')
-];
-
 // Colors for the donut chart sections
 const DEPARTMENT_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#6B8E23', '#9370DB'];
 
@@ -89,6 +82,13 @@ const getStandardDepartmentName = (deptName) => {
   
   return deptName; // Return original if no mapping found
 }
+
+// Function to format date as DD/MM
+const formatDate = (date) => {
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  return `${day}/${month}`;
+};
 
 const AnalyticsPage = () => {
   const { t } = useTranslation();
@@ -261,7 +261,7 @@ const AnalyticsPage = () => {
     setLoading(false);
   };
   
-  // Process feedback data into analytics metrics
+  // Process feedback data into analytics metrics (modified for 10 days)
   const processAnalyticsData = (feedbackData) => {
     // Default data if no feedback is available
     if (!feedbackData || feedbackData.length === 0) {
@@ -269,7 +269,7 @@ const AnalyticsPage = () => {
         todayFeedback: 0,
         totalFeedback: 0,
         averageRating: 0,
-        monthlyTrends: [],
+        dailyTrends: [],
         policeStationData: []
       });
       setLoading(false);
@@ -304,28 +304,48 @@ const AnalyticsPage = () => {
     
     const averageRating = ratedItems > 0 ? (totalRating / ratedItems).toFixed(1) : '0.0';
     
-    // Generate monthly data for chart (all 12 months)
-    const currentYear = today.getFullYear();
+    // Generate daily data for chart (last 10 days)
+    const dailyCounts = {};
+    const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+    const tenDaysAgo = new Date(Date.now() - 10 * oneDay);
     
-    // Initialize counts for all months
-    const monthCounts = Array(12).fill(0);
+    // Initialize all dates in the past 10 days with 0 counts
+    for (let i = 0; i <= 10; i++) {
+      const date = new Date(Date.now() - i * oneDay);
+      date.setHours(0, 0, 0, 0);
+      dailyCounts[date.getTime()] = {
+        date,
+        count: 0
+      };
+    }
     
-    // Count feedback by month
+    // Count feedback by day
     feedbackData.forEach(item => {
       if (item.createdAt) {
-        const date = new Date(item.createdAt);
-        if (date.getFullYear() === currentYear) {
-          const month = date.getMonth();
-          monthCounts[month]++;
+        const feedbackDate = new Date(item.createdAt);
+        feedbackDate.setHours(0, 0, 0, 0);
+        
+        // Only include dates in the last 10 days
+        if (feedbackDate >= tenDaysAgo) {
+          if (!dailyCounts[feedbackDate.getTime()]) {
+            dailyCounts[feedbackDate.getTime()] = {
+              date: feedbackDate,
+              count: 0
+            };
+          }
+          dailyCounts[feedbackDate.getTime()].count += 1;
         }
       }
     });
     
-    // Create chart data with all 12 months
-    const monthlyTrends = getMonthNames(t).map((month, index) => ({
-      month,
-      count: monthCounts[index]
-    }));
+    // Convert to array and sort by date (oldest first)
+    const dailyTrends = Object.values(dailyCounts)
+      .sort((a, b) => a.date - b.date)
+      .map(item => ({
+        date: item.date,
+        formattedDate: formatDate(item.date),
+        count: item.count
+      }));
     
     // Process police station data
     const policeStationMap = {};
@@ -374,7 +394,7 @@ const AnalyticsPage = () => {
       todayFeedback,
       totalFeedback,
       averageRating,
-      monthlyTrends,
+      dailyTrends,
       policeStationData,
       totalPoliceStations: Object.keys(policeStationMap).length,
       topRatedStations: byRating.filter(station => station.count > 0).slice(0, 3),
@@ -430,29 +450,30 @@ const AnalyticsPage = () => {
             </div>
           </div>
           <div className="card-icon">⭐</div>
+        </div>
+      
+        <div className="trends-chart">
+          <h3>{t('dailyFeedbackTrends')}</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={analytics?.dailyTrends}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="formattedDate" />
+              <YAxis />
+              <Tooltip 
+                formatter={(value) => [value, t('Feedback Count', 'Feedback Count')]}
+                labelFormatter={(label) => t('date', 'Date') + ': ' + label}
+              />
+              <Legend />
+              <Bar dataKey="count" fill="#0A2362" name={t('Feedback Count', 'Feedback Count')} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        <div className="last-updated">
+          {t('updated', 'Updated')}: {new Date().toLocaleTimeString()} ({t('refreshInterval', 'refreshes every 5 minutes')})
+        </div>
       </div>
-      
-      <div className="trends-chart">
-        <h3>{t('monthlyFeedbackTrends', "मासिक अभिप्राय प्रवृत्ती")}</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={analytics?.monthlyTrends}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis label={{ value: t('count', 'संख्या'), angle: -90, position: 'insideLeft' }} />
-            <Tooltip formatter={(value) => [value, t('count', 'संख्या')]} />
-            <Legend />
-            <Bar dataKey="count" name={t('count', 'संख्या')} fill="#0A2362" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      
-      {/* Top Feedback Issues Donut Chart */}
-      
-      {/* Department Improvement Chart */}
-    
-    </div>
-  );
-
+    );
   };
 
   // Render department analysis tab

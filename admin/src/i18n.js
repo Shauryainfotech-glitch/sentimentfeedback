@@ -209,6 +209,9 @@ const resources = {
       "security": "Security",
       "other": "Other",
       
+      // Analytics page
+      "dailyFeedbackTrends": "Daily Feedback Trends",
+      
       // Sentiment analysis page
       "sentimentAnalysis": "Sentiment Analysis",
       "positive": "Positive",
@@ -353,6 +356,8 @@ const resources = {
       
       // Analytics page
       "feedbackAnalytics": "अभिप्राय विश्लेषण",
+      "dailyFeedbackTrends": "दैनंदिन अभिप्राय प्रवृत्ती",
+      "feedbackCount": "अभिप्राय संख्या",
       "overallAnalysis": "एकूण विश्लेषण",
       "departmentAnalysis": "विभाग निहाय विश्लेषण",
       "policeStationAnalysis": "पोलीस स्टेशन निहाय विश्लेषण",
