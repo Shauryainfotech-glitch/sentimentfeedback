@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import axios from 'axios';
 
 // API URL from environment variable or default to localhost
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Month names for displaying all 12 months
 const monthNames = [
@@ -123,7 +123,7 @@ const SentimentPage = () => {
     const fetchFeedbackData = async () => {
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await axios.get(`${API_URL}/feedback`, {
+        const response = await axios.get(`${API_URL}/api/feedback`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

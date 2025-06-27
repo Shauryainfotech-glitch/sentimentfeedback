@@ -40,7 +40,7 @@ const AdminLogin = () => {
     try {
       // Use the actual backend API
       const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

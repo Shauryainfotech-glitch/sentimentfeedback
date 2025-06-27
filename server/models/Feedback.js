@@ -9,6 +9,7 @@ const Feedback = sequelize.define('Feedback', {
   description: { type: DataTypes.STRING, allowNull: false, maxlength: 300 },
   overallRating: { type: DataTypes.INTEGER, allowNull: false },
   departmentRatings: { type: DataTypes.JSONB },
+  sentiment: { type: DataTypes.STRING },  // Change to STRING to store text descriptions
 }, {});
 
 module.exports = Feedback;

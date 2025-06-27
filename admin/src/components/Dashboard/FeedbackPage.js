@@ -81,7 +81,7 @@ const FeedbackPage = () => {
       }
   
       // Set the Authorization header with the Bearer token
-      const response = await fetch(`${API_URL}/feedback`, {
+      const response = await fetch(`${API_URL}/api/feedback`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ const FeedbackPage = () => {
 
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/feedback/${id}/read`, {
+      const response = await fetch(`${API_URL}/api/feedback/${id}/read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

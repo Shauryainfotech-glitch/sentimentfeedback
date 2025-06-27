@@ -175,7 +175,7 @@ const CorrectiveMeasuresPage = () => {
       console.log('Forcing absolute fresh data fetch at:', now.toLocaleTimeString());
       
       // Fetch feedback data from API with the Authorization header
-      const response = await fetch(`${API_URL}/feedback?${cacheBuster}`, {
+      const response = await fetch(`${API_URL}/api/feedback?${cacheBuster}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ const CorrectiveMeasuresPage = () => {
       const random = Math.random().toString(36).substring(2);
       const uuid = Array(16).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
       
-      const url = `${API_URL}/feedback?_nocache=${timestamp}&_r=${random}&_u=${uuid}&_force=true`;
+      const url = `${API_URL}/api/feedback?_nocache=${timestamp}&_r=${random}&_u=${uuid}&_force=true`;
       
       const response = await fetch(url, {
         method: 'GET',

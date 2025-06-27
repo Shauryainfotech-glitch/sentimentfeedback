@@ -35,7 +35,7 @@ const ForgotPassword = ({ onBackToLogin }) => {
     try {
       // API call to send OTP
       const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const ForgotPassword = ({ onBackToLogin }) => {
     try {
       // API call to verify OTP
       const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/auth/verify-otp`, {
+      const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const ForgotPassword = ({ onBackToLogin }) => {
     try {
       // API call to reset password
       const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/auth/reset-password`, {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

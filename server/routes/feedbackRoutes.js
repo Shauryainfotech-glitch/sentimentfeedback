@@ -25,4 +25,7 @@ router.delete("/", feedbackController.deleteAllFeedback);
 // DELETE route to delete feedback by ID
 router.delete("/:id", feedbackController.deleteFeedbackById);
 
+router.put('/:id', feedbackController.updateFeedback); // Add route for updating feedback
+
+
 module.exports = router;

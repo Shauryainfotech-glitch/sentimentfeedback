@@ -73,7 +73,7 @@ const DashboardLayout = () => {
     try {
       // Call logout API
       const API_URL = process.env.REACT_APP_API_URL ;
-      await fetch(`${API_URL}/auth/logout`, {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

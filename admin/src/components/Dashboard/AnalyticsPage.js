@@ -113,7 +113,7 @@ const AnalyticsPage = () => {
       }
   
       // Fetch feedback data from API with the Authorization header
-      const response = await fetch(`${API_URL}/feedback`, {
+      const response = await fetch(`${API_URL}/api/feedback`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ const AnalyticsPage = () => {
   const fetchDepartmentData = async (token) => {
     try {
       // Get department frequency data from feedback entries
-      const response = await fetch(`${API_URL}/feedback`, {
+      const response = await fetch(`${API_URL}/api/feedback`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
