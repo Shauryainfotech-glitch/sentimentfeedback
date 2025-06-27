@@ -87,20 +87,7 @@ const updateFeedback = async (req, res) => {
     const feedback = await Feedback.findByPk(req.params.id);
     if (!feedback) return res.status(404).json({ error: 'Feedback not found' });
 
-    const { name, phone, description, overallRating, departmentRatings, policeStation } = req.body;
-
-    // Recalculate sentiment description if the description is updated
-    let sentimentDescription = feedback.sentiment; // Keep previous sentiment if description is not updated
-    if (description) {
-      const sentimentResult = sentiment.analyze(description);
-      if (sentimentResult.score > 0) {
-        sentimentDescription = 'positive';
-      } else if (sentimentResult.score < 0) {
-        sentimentDescription = 'negative';
-      } else {
-        sentimentDescription = 'neutral';
-      }
-    }
+    const { name, phone, description, overallRating, departmentRatings, policeStation, sentiment, correctiveMeasure, testing } = req.body;
 
     // Update feedback with new details
     feedback.name = name || feedback.name;
@@ -109,7 +96,9 @@ const updateFeedback = async (req, res) => {
     feedback.overallRating = overallRating || feedback.overallRating;
     feedback.departmentRatings = departmentRatings || feedback.departmentRatings;
     feedback.policeStation = policeStation || feedback.policeStation;
-    feedback.sentiment = sentimentDescription;  // Update sentiment description
+    feedback.sentiment = sentiment || feedback.sentiment;
+     feedback.correctiveMeasure = correctiveMeasure || feedback.corrective_measure;  // Update corrective measure
+    feedback.testing = testing || feedback.testing;
 
     await feedback.save(); // Save updated feedback
 
