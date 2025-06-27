@@ -30,7 +30,7 @@ const translations = {
       "Action against Narcotics",
       "Cyber Crime",
     ],
-    departmentRatingsHeading:"For department-wise rating, select a department below",
+    departmentRatingsHeading: "For department-wise rating, select a department below",
     rating: "Rating",
     alreadyRated: "department has already been rated",
     invalidPhone: "Please enter a valid 10-digit phone number.",
@@ -253,7 +253,19 @@ const FeedbackForm = () => {
     e.preventDefault();
 
     if (isSubmitting) return;
-
+    if (!selectedPoliceStation) {
+      toast.error(
+        language === "mr"
+          ? "कृपया आपले पोलीस स्टेशन निवडा"
+          : "Please select your police station",
+        {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "colored",
+        }
+      );
+      return;
+    }
     // Check if description is empty
     if (!formData.description.trim()) {
       toast.error(t.descriptionRequired, {
@@ -273,14 +285,7 @@ const FeedbackForm = () => {
       return; // Prevent form submission if phone is invalid
     }
 
-    if (!selectedPoliceStation) {
-      toast.error("Please select your police station.", {
-        position: "top-center",
-        autoClose: 5000,
-        theme: "colored",
-      });
-      return;
-    }
+
 
     setIsSubmitting(true);
     const startTime = Date.now();
@@ -371,134 +376,134 @@ const FeedbackForm = () => {
     <div className="container-fluid px-0">
       {/* Enhanced Header with Gradient and Subtle Animation */}
       <header
-  className="sticky-top"
-  style={{
-    background: "linear-gradient(135deg, #0A2362 0%, #1a4a9a 100%)",
-    boxShadow: "0 4px 20px rgba(10, 35, 98, 0.3)",
-    borderBottom: "3px solid #FFD700",
-    zIndex: 1000,
-  }}
->
-  <div className="container">
-    <div className="d-flex flex-wrap justify-content-between align-items-center py-2 py-md-3">
-      {/* Logo - Left aligned */}
-      <div className="d-flex align-items-center order-1 order-md-1" style={{ flex: '0 0 auto' }}>
-        <div
-          className="logo-container"
-          style={{
-            padding: "6px",
-            borderRadius: "6px",
-            transition: "all 0.3s ease",
-            background: "rgba(255,255,255,0.9)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-            transformStyle: "preserve-3d",
-            perspective: "1000px"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-3px) rotateY(10deg)";
-            e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "";
-            e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
-          }}
-        >
-          <img
-            src="/maha-logo.png"
-            alt="Maharashtra Government Logo"
-            style={{
-              height: windowWidth < 768 ? "40px" : "80px",
-              width: "auto",
-              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-              transition: "transform 0.3s ease"
-            }}
-          />
-        </div>
-      </div>
+        className="sticky-top"
+        style={{
+          background: "linear-gradient(135deg, #0A2362 0%, #1a4a9a 100%)",
+          boxShadow: "0 4px 20px rgba(10, 35, 98, 0.3)",
+          borderBottom: "3px solid #FFD700",
+          zIndex: 1000,
+        }}
+      >
+        <div className="container">
+          <div className="d-flex flex-wrap justify-content-between align-items-center py-2 py-md-3">
+            {/* Logo - Left aligned */}
+            <div className="d-flex align-items-center order-1 order-md-1" style={{ flex: '0 0 auto' }}>
+              <div
+                className="logo-container"
+                style={{
+                  padding: "6px",
+                  borderRadius: "6px",
+                  transition: "all 0.3s ease",
+                  background: "rgba(255,255,255,0.9)",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                  transformStyle: "preserve-3d",
+                  perspective: "1000px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-3px) rotateY(10deg)";
+                  e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "";
+                  e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
+                }}
+              >
+                <img
+                  src="/maha-logo.png"
+                  alt="Maharashtra Government Logo"
+                  style={{
+                    height: windowWidth < 768 ? "40px" : "80px",
+                    width: "auto",
+                    filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+                    transition: "transform 0.3s ease"
+                  }}
+                />
+              </div>
+            </div>
 
-      {/* Language Selector - Right aligned (top on mobile) */}
-      <div className="order-3 order-md-3 mt-0 ms-auto ms-md-0" style={{ flex: '0 0 auto' }}>
-        <div className="position-relative" style={{ 
-          minWidth: windowWidth < 768 ? "90px" : "120px"
-        }}>
-          <select
-            className="form-select ps-3 pe-4 py-1"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            style={{
-              border: "2px solid rgba(255,255,255,0.3)",
-              color: "#0A2362",
-              fontWeight: "600",
-              cursor: "pointer",
-              borderRadius: "30px",
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              backdropFilter: "blur(4px)",
-              appearance: "none",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-              transition: "all 0.3s ease",
-              backgroundImage: `url(${language === "mr" ? "/india-flag.png" : "/uk-flag.png"}), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230A2362' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat, no-repeat",
-              backgroundPosition: `
+            {/* Language Selector - Right aligned (top on mobile) */}
+            <div className="order-3 order-md-3 mt-0 ms-auto ms-md-0" style={{ flex: '0 0 auto' }}>
+              <div className="position-relative" style={{
+                minWidth: windowWidth < 768 ? "90px" : "120px"
+              }}>
+                <select
+                  className="form-select ps-3 pe-4 py-1"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  style={{
+                    border: "2px solid rgba(255,255,255,0.3)",
+                    color: "#0A2362",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    borderRadius: "30px",
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(4px)",
+                    appearance: "none",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                    transition: "all 0.3s ease",
+                    backgroundImage: `url(${language === "mr" ? "/india-flag.png" : "/uk-flag.png"}), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230A2362' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: "no-repeat, no-repeat",
+                    backgroundPosition: `
                 ${windowWidth < 768 ? "5px" : "8px"} center,
                 calc(100% - ${windowWidth < 768 ? "8px" : "15px"}) center
               `,
-              backgroundSize: "16px, 16px",
-              paddingRight: windowWidth < 768 ? "25px" : "35px",
-              paddingLeft: windowWidth < 768 ? "25px" : "35px",
-              width: windowWidth < 768 ? "auto" : "100%"
-            }}
-          >
-            <option value="mr">मराठी</option>
-            <option value="en">English</option>
-          </select>
-        </div>
-      </div>
+                    backgroundSize: "16px, 16px",
+                    paddingRight: windowWidth < 768 ? "25px" : "35px",
+                    paddingLeft: windowWidth < 768 ? "25px" : "35px",
+                    width: windowWidth < 768 ? "auto" : "100%"
+                  }}
+                >
+                  <option value="mr">मराठी</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
 
-      {/* Centered Title - Middle */}
-      <div className="order-2 order-md-2 text-center mx-2 mx-md-4" style={{ 
-        flex: '1 1 auto',
-        minWidth: 0, // Prevent text overflow
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        padding: '5px 0' // Add some vertical padding
-      }}>
-        <h2
-          className="fw-bold mb-0 text-white"
-          style={{
-            fontSize: windowWidth < 768 ? "1.2rem" : 
+            {/* Centered Title - Middle */}
+            <div className="order-2 order-md-2 text-center mx-2 mx-md-4" style={{
+              flex: '1 1 auto',
+              minWidth: 0, // Prevent text overflow
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              padding: '5px 0' // Add some vertical padding
+            }}>
+              <h2
+                className="fw-bold mb-0 text-white"
+                style={{
+                  fontSize: windowWidth < 768 ? "1.2rem" :
                     windowWidth < 992 ? "1.5rem" : "1.8rem",
-            letterSpacing: "0.5px",
-            position: "relative",
-            display: "inline-block",
-            textShadow: "1px 1px 3px rgba(0,0,0,0.3)",
-            maxWidth: '100%',
-            lineHeight: '1.2',
-            padding: '0 5px',
-            margin: 0
-          }}
-        >
-          {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
-          <span
-            style={{
-              position: "absolute",
-              bottom: "-5px",
-              left: 0,
-              width: "100%",
-              height: "3px",
-              background: "linear-gradient(to right, #FFD700, #FFFFFF)",
-              borderRadius: "3px",
-              transform: "scaleX(0)",
-              transformOrigin: "left center",
-              transition: "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            }}
-          ></span>
-        </h2>
-      </div>
-    </div>
-  </div>
-</header>
+                  letterSpacing: "0.5px",
+                  position: "relative",
+                  display: "inline-block",
+                  textShadow: "1px 1px 3px rgba(0,0,0,0.3)",
+                  maxWidth: '100%',
+                  lineHeight: '1.2',
+                  padding: '0 5px',
+                  margin: 0
+                }}
+              >
+                {language === "mr" ? "अहिल्यानगर पोलीस" : "AHILYANAGAR POLICE"}
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "-5px",
+                    left: 0,
+                    width: "100%",
+                    height: "3px",
+                    background: "linear-gradient(to right, #FFD700, #FFFFFF)",
+                    borderRadius: "3px",
+                    transform: "scaleX(0)",
+                    transformOrigin: "left center",
+                    transition: "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  }}
+                ></span>
+              </h2>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content with Subtle Background Pattern */}
       <main
@@ -512,49 +517,49 @@ const FeedbackForm = () => {
         <div className="container">
           {/* Animated Slogans Carousel */}
           <div className="mb-2 mb-md-3">  {/* Reduced bottom margin */}
-  <div className="slogan-carousel">
-    {t.slogans &&
-      t.slogans.map((s, idx) => (
-        <div
-          key={idx}
-          className="slogan-item text-center p-1 p-md-2 mb-1 mb-md-2 animate__animated animate__fadeIn" 
-          style={{
-            animationDelay: `${idx * 0.2}s`,
-            background: "rgba(255,255,255,0.9)",
-            borderRadius: "6px",  
-            boxShadow: "0 2px 8px rgba(10, 35, 98, 0.1)", 
-            borderLeft: "3px solid #0A2362", 
-            transition: "all 0.3s ease",
-          
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-2px)";  
-            e.currentTarget.style.boxShadow =
-              "0 4px 12px rgba(10, 35, 98, 0.15)"; 
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "";
-            e.currentTarget.style.boxShadow =
-              "0 2px 8px rgba(10, 35, 98, 0.1)";
-          }}
-        >
-          <div
-            className="slogan-text fw-medium"
-            style={{
-              color: "#0A2362",
-              fontSize:
-                windowWidth < 768
-                  ? "0.8rem"  
-                  : windowWidth < 992
-                  ? "0.9rem"
-                  : "1.3rem",
-            }}
-            dangerouslySetInnerHTML={{ __html: s }}
-          />
-        </div>
-      ))}
-  </div>
-</div>
+            <div className="slogan-carousel">
+              {t.slogans &&
+                t.slogans.map((s, idx) => (
+                  <div
+                    key={idx}
+                    className="slogan-item text-center p-1 p-md-2 mb-1 mb-md-2 animate__animated animate__fadeIn"
+                    style={{
+                      animationDelay: `${idx * 0.2}s`,
+                      background: "rgba(255,255,255,0.9)",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 8px rgba(10, 35, 98, 0.1)",
+                      borderLeft: "3px solid #0A2362",
+                      transition: "all 0.3s ease",
+
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 12px rgba(10, 35, 98, 0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "";
+                      e.currentTarget.style.boxShadow =
+                        "0 2px 8px rgba(10, 35, 98, 0.1)";
+                    }}
+                  >
+                    <div
+                      className="slogan-text fw-medium"
+                      style={{
+                        color: "#0A2362",
+                        fontSize:
+                          windowWidth < 768
+                            ? "0.8rem"
+                            : windowWidth < 992
+                              ? "0.9rem"
+                              : "1.3rem",
+                      }}
+                      dangerouslySetInnerHTML={{ __html: s }}
+                    />
+                  </div>
+                ))}
+            </div>
+          </div>
 
           {/* Form Section with Floating Label Effect */}
           <div className="row justify-content-center">
@@ -616,7 +621,7 @@ const FeedbackForm = () => {
                             htmlFor="nameInput"
                             style={{ color: "#6c757d" }}
                           >
-                            {t.fullName} 
+                            {t.fullName}
                           </label>
                         </div>
                       </div>
@@ -642,50 +647,49 @@ const FeedbackForm = () => {
                             htmlFor="phoneInput"
                             style={{ color: "#6c757d" }}
                           >
-                            {t.phone} 
+                            {t.phone}
                           </label>
                         </div>
                       </div>
 
                       <div className="col-12">
                         <div className="form-floating">
-  <select
-    className="form-select"
-    name="policeStation"
-    id="policeStationSelect"
-    value={selectedPoliceStation}
-    onChange={handleChange}
-    required
-    style={{
-      borderLeft: "3px solid #0A2362",
-      borderRadius: "0 5px 5px 0",
-      paddingTop: "1.625rem",
-      paddingBottom: "0.625rem", // Added bottom padding
-      height: "calc(3.5rem + 2px)", // Explicit height
-    }}
-  >
-    <option value=""></option>
-    {policeStations.map((station, i) => (
-      <option key={i} value={station.en}>
-        {language === "mr" ? station.mr : station.en}
-      </option>
-    ))}
-  </select>
-  <label
-    htmlFor="policeStationSelect"
-    style={{
-      color: "#6c757d",
-      paddingTop: "0.5rem", // Added padding to label
-      paddingBottom: "0.5rem", // Added padding to label
-      height: "auto", // Allow label to expand
-    }}
-  >
-    {language === "mr"
-      ? "तुमचे पोलीस स्टेशन निवडा"
-      : "Select your police station"}
-    <span className="text-danger">*</span>
-  </label>
-</div>
+                          <select
+                            className="form-select"
+                            name="policeStation"
+                            id="policeStationSelect"
+                            value={selectedPoliceStation}
+                            onChange={handleChange}
+                            style={{
+                              borderLeft: "3px solid #0A2362",
+                              borderRadius: "0 5px 5px 0",
+                              paddingTop: "1.625rem",
+                              paddingBottom: "0.625rem", // Added bottom padding
+                              height: "calc(3.5rem + 2px)", // Explicit height
+                            }}
+                          >
+                            <option value=""></option>
+                            {policeStations.map((station, i) => (
+                              <option key={i} value={station.en}>
+                                {language === "mr" ? station.mr : station.en}
+                              </option>
+                            ))}
+                          </select>
+                          <label
+                            htmlFor="policeStationSelect"
+                            style={{
+                              color: "#6c757d",
+                              paddingTop: "0.5rem", // Added padding to label
+                              paddingBottom: "0.5rem", // Added padding to label
+                              height: "auto", // Allow label to expand
+                            }}
+                          >
+                            {language === "mr"
+                              ? "तुमचे पोलीस स्टेशन निवडा"
+                              : "Select your police station"}
+                            <span className="text-danger">*</span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -786,89 +790,89 @@ const FeedbackForm = () => {
                   </div>
 
                   {/* Department Ratings - Enhanced Table */}
- <div className="mb-3 mb-md-4">
-  <h5 className="fw-bold mb-2 mb-md-3" style={{ color: "#0A2362", fontSize: windowWidth < 768 ? "1rem" : "1.25rem" }}>
-    <i className="fas fa-list-alt me-1 me-md-2"></i>
-    {t.departmentRatingsHeading}
-  </h5>
+                  <div className="mb-3 mb-md-4">
+                    <h5 className="fw-bold mb-2 mb-md-3" style={{ color: "#0A2362", fontSize: windowWidth < 768 ? "1rem" : "1.25rem" }}>
+                      <i className="fas fa-list-alt me-1 me-md-2"></i>
+                      {t.departmentRatingsHeading}
+                    </h5>
 
-  <div className="table-responsive">
-    <table className="table table-hover mb-0" style={{ fontSize: windowWidth < 768 ? "0.75rem" : "0.9rem" }}>
-      <thead>
-        <tr style={{ background: "#0A2362", color: "white" }}>
-          <th style={{ width: "5%", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>#</th>
-          <th style={{ minWidth: windowWidth < 768 ? "80px" : "120px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-            {t.tableHeaders.department}
-          </th>
-          <th style={{ minWidth: windowWidth < 768 ? "80px" : "150px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-            {t.tableHeaders.rating}
-          </th>
-          <th style={{ minWidth: windowWidth < 768 ? "40px" : "80px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-            {t.tableHeaders.value}
-          </th>
-          <th style={{ width: windowWidth < 768 ? "30px" : "50px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }} className="text-center">
-            {t.tableHeaders.select}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {deptRatings.map((dept, idx) => (
-          <tr key={idx} style={{ verticalAlign: "middle" }}>
-            <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>{idx + 1}</td>
-            <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-              {dept.department}
-            </td>
-            <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-              <div className="d-flex align-items-center">
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={dept.rating}
-                  onChange={(e) => handleDeptSlider(idx, e.target.value)}
-                  className="form-range me-1 me-md-2"
-                  style={{
-                    height: windowWidth < 768 ? "3px" : "5px",
-                    cursor: "pointer",
-                    minWidth: windowWidth < 768 ? "60px" : "100px"
-                  }}
-                />
-              </div>
-            </td>
-            <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-              <span
-                className="badge rounded-pill px-1 py-0"
-                style={{
-                  background: "#0A2362",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                {dept.rating}/10
-              </span>
-            </td>
-            <td className="text-center" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
-              <div className="form-check form-switch d-flex justify-content-center m-0">
-                <input
-                  className="form-check-input m-0"
-                  type="checkbox"
-                  role="switch"
-                  checked={dept.checked}
-                  onChange={(e) => handleDeptCheck(idx, e.target.checked)}
-                  style={{
-                    width: windowWidth < 768 ? "1.8em" : "2.5em",
-                    height: windowWidth < 768 ? "1em" : "1.3em",
-                    cursor: "pointer",
-                    backgroundColor: dept.checked ? "#0A2362" : ""
-                  }}
-                />
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+                    <div className="table-responsive">
+                      <table className="table table-hover mb-0" style={{ fontSize: windowWidth < 768 ? "0.75rem" : "0.9rem" }}>
+                        <thead>
+                          <tr style={{ background: "#0A2362", color: "white" }}>
+                            <th style={{ width: "5%", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>#</th>
+                            <th style={{ minWidth: windowWidth < 768 ? "80px" : "120px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                              {t.tableHeaders.department}
+                            </th>
+                            <th style={{ minWidth: windowWidth < 768 ? "80px" : "150px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                              {t.tableHeaders.rating}
+                            </th>
+                            <th style={{ minWidth: windowWidth < 768 ? "40px" : "80px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                              {t.tableHeaders.value}
+                            </th>
+                            <th style={{ width: windowWidth < 768 ? "30px" : "50px", padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }} className="text-center">
+                              {t.tableHeaders.select}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {deptRatings.map((dept, idx) => (
+                            <tr key={idx} style={{ verticalAlign: "middle" }}>
+                              <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>{idx + 1}</td>
+                              <td className="fw-bold" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                                {dept.department}
+                              </td>
+                              <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                                <div className="d-flex align-items-center">
+                                  <input
+                                    type="range"
+                                    min="1"
+                                    max="10"
+                                    value={dept.rating}
+                                    onChange={(e) => handleDeptSlider(idx, e.target.value)}
+                                    className="form-range me-1 me-md-2"
+                                    style={{
+                                      height: windowWidth < 768 ? "3px" : "5px",
+                                      cursor: "pointer",
+                                      minWidth: windowWidth < 768 ? "60px" : "100px"
+                                    }}
+                                  />
+                                </div>
+                              </td>
+                              <td style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                                <span
+                                  className="badge rounded-pill px-1 py-0"
+                                  style={{
+                                    background: "#0A2362",
+                                    whiteSpace: "nowrap"
+                                  }}
+                                >
+                                  {dept.rating}/10
+                                </span>
+                              </td>
+                              <td className="text-center" style={{ padding: windowWidth < 768 ? "0.3rem" : "0.5rem" }}>
+                                <div className="form-check form-switch d-flex justify-content-center m-0">
+                                  <input
+                                    className="form-check-input m-0"
+                                    type="checkbox"
+                                    role="switch"
+                                    checked={dept.checked}
+                                    onChange={(e) => handleDeptCheck(idx, e.target.checked)}
+                                    style={{
+                                      width: windowWidth < 768 ? "1.8em" : "2.5em",
+                                      height: windowWidth < 768 ? "1em" : "1.3em",
+                                      cursor: "pointer",
+                                      backgroundColor: dept.checked ? "#0A2362" : ""
+                                    }}
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                   {/* Submit Button with Animation */}
                   <div className="text-center mt-3 mt-md-4">
                     <button
